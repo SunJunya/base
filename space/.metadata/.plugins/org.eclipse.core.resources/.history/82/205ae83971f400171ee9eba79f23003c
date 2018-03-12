@@ -1,0 +1,22 @@
+package First;
+
+public class Test {
+	 public static void main(String[] args) {
+		 int i = 'Œ“';
+		 char c = 65535;
+//		 char d = 65534;
+//		 
+		 byte b = 5;
+//	????	 byte d = b ; 
+//		  
+//		  
+		 short e = 5;
+		 short f = 6;
+		 short g = e + b; 
+
+		System.out.println(i);
+		System.out.println(c);
+		System.out.println(b);
+		
+	}
+}

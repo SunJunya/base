@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Copy 0 elements to &apos;web/src/com.hpo.excel&apos;&#x0D;&#x0A;- Destination element: &apos;web/src/com.hpo.excel&apos;" description="Copy compilation units" destination="=web/src&lt;com.hpo.excel" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1500799886408" units="0" version="1.0"/>&#x0A;<refactoring comment="Delete resource &apos;sort&apos;" deleteContents="false" description="Delete resource &apos;sort&apos;" element1="/sort" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1501229242473"/>
+</session>

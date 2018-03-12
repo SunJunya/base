@@ -1,0 +1,13 @@
+package test;
+
+/**
+ * @Author menglanyingfei
+ * @Created on 2018.01.03 11:15
+ *
+ * 先做界面
+ */
+public class GUIShow {
+    public static void main(String[] args) {
+
+    }
+}

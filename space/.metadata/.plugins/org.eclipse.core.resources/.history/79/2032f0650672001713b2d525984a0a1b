@@ -1,0 +1,91 @@
+package com.obo;
+
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Obo {
+      private String id;
+      private String is_a;
+      private int count;
+      
+      private static final String path="E://白原科技//辅助诊断系统-后台数据//hp.obo";
+      private static final String openFileStyle = "r";
+      public static final String fieldLimitChar = " ";
+      
+
+      
+      public void loadFile() {
+          try {
+              RandomAccessFile raf = new RandomAccessFile(path, openFileStyle);
+              String demo="[Term]";
+              String line_record =raf.readLine();
+              while (line_record!=null){
+            	  while(line_record.equals(demo)) {
+                   // 解析每一条记录
+                   while(line_record!=null){
+                	   line_record =raf.readLine(); 
+                       parseRecord(line_record);
+  //                     line_record =raf.readLine();                          
+                       if(line_record.equals(demo)){
+                        break;
+                   }
+                 }
+              }
+              line_record =raf.readLine(); }
+              System.out.println("共有合法的记录" + count + "条");
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+      }
+	private void parseRecord(String line_record) throws Exception {
+		// TODO Auto-generated method stub
+//		String[] fields=line_record.split(fieldLimitChar);
+		String demo_id=".*id: HP:.*";
+		String demo_is_a=".*is_a: HP:.*";
+		if(Pattern.matches(demo_id, line_record)){
+			 String pattern1="^(id:\\s+HP:)(\\d+)";
+			 Pattern r1=Pattern.compile(pattern1);
+			 Matcher m1=r1.matcher(line_record);
+			 if(m1.find()){
+				 System.out.println(m1.group(2));
+				 id=m1.group(1);
+			 }
+			 else{
+				 System.out.println("m1 no find");
+			 }	
+		}
+		if(Pattern.matches(demo_is_a, line_record)){
+			String pattern2="(is_a:\\s+HP:)(\\d+)";
+			 Pattern r2=Pattern.compile(pattern2);
+			 Matcher m2=r2.matcher(line_record);	   	  	 
+			 if(m2.find()){
+				 System.out.println("is_a: HP:"+m2.group(2));		
+				 is_a=m2.group(2);
+			  }
+			  else{
+				 System.out.println("m2 no find");
+			  }		
+		}
+		System.out.println(id+" "+is_a+" ");			
+		System.out.println("---------------------------------------");
+	}
+			 
+//	private String tranStr(String oldstr) {
+//	    String newstr = "";
+//	    try {
+//	      newstr = new String(oldstr.getBytes("ISO-8859-1"), "GBK");
+//	     } catch (UnsupportedEncodingException e) {
+//	     e.printStackTrace();
+//	     }
+//	      return newstr;
+//		    
+//	}
+	
+	public static void main (String[] args){
+		Obo obo=new Obo();
+		obo.loadFile();
+	}
+      
+}

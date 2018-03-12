@@ -1,0 +1,398 @@
+package view;
+
+import model.dao.IStudentDAOImpl;
+import model.vo.Student;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class MainView {
+    JFrame frame = new JFrame("学生信息管理系统");
+    JMenuBar mb = new JMenuBar();
+    List<Student> list;
+
+    public void show(String user, String pass) {
+        final String userName = user;
+//        System.out.println(userName);
+        final String passwordValue = pass;
+        JMenu menuOperation = new JMenu("基本操作");
+
+        JMenuItem add = new JMenuItem("增加");
+        JMenuItem query = new JMenuItem("查询");
+        JMenuItem password = new JMenuItem("密码修改");
+        JMenuItem exit = new JMenuItem("退出");
+        add.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        query.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        password.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        exit.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+
+        menuOperation.add(add);
+        menuOperation.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuOperation.add(query);
+        menuOperation.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuOperation.add(password);
+        menuOperation.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuOperation.add(exit);
+        menuOperation.setFont(new Font("微软雅黑", Font.PLAIN, 20));
+
+        JMenu menuIO = new JMenu("导入导出");
+
+        JMenuItem readExcel = new JMenuItem("从Excel导入");
+        JMenuItem readTxt = new JMenuItem("从txt导入");
+        JMenuItem writeExcel = new JMenuItem("导出到Excel");
+        JMenuItem writeTxt = new JMenuItem("导出到txt");
+
+        readExcel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        readTxt.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        writeExcel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        writeTxt.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+
+        menuIO.add(readExcel);
+        menuIO.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuIO.add(readTxt);
+        menuIO.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuIO.add(writeExcel);
+        menuIO.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuIO.add(writeTxt);
+        menuIO.setFont(new Font("微软雅黑", Font.PLAIN, 20));
+
+        JMenu menuHelp = new JMenu("帮助");
+
+        JMenuItem about = new JMenuItem("关于本系统");
+        JMenuItem help = new JMenuItem("系统帮助");
+        about.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        help.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        menuHelp.add(about);
+        menuHelp.add(new JSeparator(JSeparator.HORIZONTAL));
+        menuHelp.add(help);
+        menuHelp.setFont(new Font("微软雅黑", Font.PLAIN, 20));
+
+        mb.add(menuOperation);
+        mb.add(Box.createHorizontalStrut(20)); // 增加水平间隔
+        mb.add(menuIO);
+        mb.add(Box.createHorizontalStrut(20));
+        mb.add(menuHelp);
+        mb.add(Box.createHorizontalStrut(20));
+
+        frame.setJMenuBar(mb);
+
+        frame.setSize(988, 620);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        // 事件监听
+        // 新增信息窗口
+        add.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new DoInsertView();
+            }
+        });
+        // 退出功能
+        exit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // 程序退出
+                System.exit(1);
+            }
+        });
+        // 导入导出
+        readExcel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                jfc.showDialog(new JLabel(), "选择");
+                File file = jfc.getSelectedFile();
+                if (file != null) {
+                    if (file.isFile() && file.getAbsolutePath().endsWith(".xls")) {
+                        importFile(file);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "导入文件出错，请检查!", "提示框", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
+            }
+        });
+
+        readTxt.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                jfc.showDialog(new JLabel(), "选择");
+                File file = jfc.getSelectedFile();
+                System.out.println(file);
+                if (file != null) {
+                    if (file.isFile() && file.getAbsolutePath().endsWith(".txt")) {
+                        importFile(file);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "导入文件出错，请检查!", "提示框", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
+        // 导出
+        writeExcel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                jfc.showDialog(new JLabel(), "选择");
+                File file = jfc.getSelectedFile();
+                if (file != null) {
+                    if (file.getAbsolutePath().endsWith(".xls")) {
+                        writeFile(file);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "导入文件格式出错，请检查!", "提示框", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
+            }
+        });
+        writeTxt.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                jfc.showDialog(new JLabel(), "选择");
+                File file = jfc.getSelectedFile();
+                if (file != null) {
+                    if (file.getAbsolutePath().endsWith(".txt")) {
+                        writeFile(file);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "导入文件格式出错，请检查!", "提示框", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
+            }
+        });
+        // 查询信息
+        query.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new DoSelectView();
+            }
+        });
+        // 密码修改
+        password.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PasswordChangeView(userName, passwordValue);
+            }
+        });
+        //帮助
+        help.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new HelpView();
+            }
+        });
+        // 关于
+        about.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new AboutView();
+            }
+        });
+    }
+    // 重构
+    public void writeFile(File file) {
+        try {
+            list = new IStudentDAOImpl().selectAll();
+            if (file.toString().endsWith(".txt")) {
+                WriteTxt(list, file);
+            } else {
+                writeExcel(list, file);
+            }
+            JOptionPane.showMessageDialog(null, "成功导入" + list.size() + "条记录到文件中!", "提示框", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    // 重构
+    public void importFile(File file) {
+        System.out.println("文件:" + file.getAbsolutePath());
+
+        boolean flag = false;
+        try {
+            if (file.getAbsolutePath().endsWith(".xls")) {
+                list = readFromExcel(file);
+            } else {
+                list = ReadFromTxt(file);
+            }
+
+            for (int i = 0; i < list.size(); i++) {
+                if (new IStudentDAOImpl().findById(list.get(i).getId()) != null) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                JOptionPane.showMessageDialog(null, "文件中某些行的学号在数据库中已存在，请检查!", "提示框", JOptionPane.WARNING_MESSAGE);
+            } else {
+                for (int i = 0; i < list.size(); i++) {
+                    new IStudentDAOImpl().doInsert(list.get(i));
+                }
+                JOptionPane.showMessageDialog(null, "成功导入" + list.size() + "条记录到数据库中!", "提示框", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    // 实现读学生文件，将读出的信息存放于student集合中
+    public List<Student> readFromExcel(File file) throws Exception {
+        List<Student> list = new ArrayList<>();
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            HSSFWorkbook book = new HSSFWorkbook(in);
+            // 得到第一个Sheet页
+            HSSFSheet sheet = book.getSheetAt(0);
+            HSSFRow row;
+
+            for (int i = sheet.getFirstRowNum() + 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Student student = new Student();
+
+                row = sheet.getRow(i);
+                int j = row.getFirstCellNum();
+                student.setId(row.getCell(j).toString());
+                student.setName(row.getCell(j + 1).toString());
+                student.setSex(row.getCell(j + 2).toString());
+                student.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(row.getCell(j + 3).toString()));
+                student.setProvince(row.getCell(j + 4).toString());
+                student.setInterest(row.getCell(j + 5).toString());
+                student.setPhone(row.getCell(j + 6).toString());
+
+                list.add(student);
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // 从文本文件中读，将读出的数据存放于集合中
+    public List<Student> ReadFromTxt(File file) throws Exception {
+        List<Student> list = new ArrayList<Student>();
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader(file));
+
+            String content;
+            while (true) {
+                content = bf.readLine();
+
+                if (content == null) {
+                    break;
+                }
+                // 设置正则将多余空格或Tab键都转为一个空格
+                String[] str = content.trim().split("\\s{2,}|\t");
+                Student student = new Student();
+
+                student.setId(str[0]);
+                student.setName(str[1]);
+                student.setSex(str[2]);
+                student.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(str[3]));
+                student.setProvince(str[4]);
+                student.setInterest(str[5]);
+                student.setPhone(str[6]);
+
+                list.add(student);
+            }
+
+            bf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    /*
+     * 将List集合数据写入excel（单个sheet）
+     *
+     * @param excelTitle    文件表头
+     * @param list          要写入的数据集合
+     * @param sheetName     sheet名称
+     */
+    // 将集合中的数据写入到excel文件中
+    public static void writeExcel(List<Student> list, File file) {
+        Workbook workbook = new HSSFWorkbook();
+
+        //create sheet
+        String sheetName = "student";
+        String[] excelTitle = {"学号", "姓名", "性别", "生日", "省份", "爱好", "手机号码"};
+        Sheet sheet = workbook.createSheet(sheetName);
+        int rowIndex = 0; // 标识位，用于标识sheet的行号
+        // 遍历数据集，将其写入excel中
+        try {
+            // 写表头数据
+            Row titleRow = sheet.createRow(rowIndex);
+            for (int i = 0; i < excelTitle.length; i++) {
+                // 创建表头单元格,填值
+                titleRow.createCell(i).setCellValue(excelTitle[i]);
+            }
+            rowIndex++;
+            // 循环写入主表数据
+            for (Iterator<Student> iterator = list.iterator();
+                 iterator.hasNext(); ) {
+                Student student = iterator.next();
+                // create sheet row
+                Row row = sheet.createRow(rowIndex);
+                // create sheet column(单元格)
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(student.getId());
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(student.getName());
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(student.getSex());
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(new SimpleDateFormat("yyyy-MM-dd").format(student.getBirthday()));
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(student.getProvince());
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(student.getInterest());
+                Cell cell6 = row.createCell(6);
+                cell6.setCellValue(student.getPhone());
+
+                rowIndex++;
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+            workbook.write(fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 将集合中的数据写入到txt文件中, 思路: 使用打印流
+    public void WriteTxt(List<Student> list, File file) {
+        try {
+            PrintStream printStream = new PrintStream(new FileOutputStream(file));
+            printStream.printf("学号\t姓名\t性别\t生日\t省份\t爱好\t手机号码\r\n");
+            for (int i = 0; i < list.size(); i++) {
+                printStream.printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n", list.get(i).getId(),
+                        list.get(i).getName(), list.get(i).getSex(),
+                        new SimpleDateFormat("yyyy-MM-dd").format(list.get(i).getBirthday()),
+                        list.get(i).getProvince(), list.get(i).getInterest(), list.get(i).getPhone());
+            }
+            printStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+}

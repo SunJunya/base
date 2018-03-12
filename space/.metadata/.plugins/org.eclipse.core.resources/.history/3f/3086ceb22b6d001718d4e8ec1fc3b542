@@ -1,0 +1,25 @@
+package com.excel;
+
+import java.util.List;
+
+import javax.swing.text.DefaultEditorKit.InsertBreakAction;
+
+public class TestExcelToDb {
+    public static void main(String[] args){
+    	List<StuEntity> listExcel=StuService.getALlByExcel("E://白原科技//辅助诊断系统-后台数据//demo2.xlsx");
+    	DBhepler db=new DBhepler();
+    	for(StuEntity stuEntity:listExcel){
+    		int id=stuEntity.getId();
+    		if(!StuService.isExist(id)){
+    			String sql="insert into stu(name,sex,num) values(?,?,?)";
+    			String[] str=new String[]{stuEntity.getName(),
+    					stuEntity.getSex(),stuEntity.getNum()+""};
+    			db.AddU(sql, str);			
+    		}else{
+    			String sql="update stu set name=?,sex=?,num=? where id=?";
+    			String[] str=new String[]{stuEntity.getName(),stuEntity.getSex(),stuEntity.getNum()+"",id+""};
+    			db.AddU(sql, str);
+    		}
+    	}
+    }
+}

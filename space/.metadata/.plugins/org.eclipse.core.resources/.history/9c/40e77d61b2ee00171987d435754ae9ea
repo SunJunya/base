@@ -1,0 +1,230 @@
+package ZhaoJin;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+public class AStar {
+	private static Maze m_pMaze=new Maze();
+	private short[][]m_ppMaze;
+
+	private Point m_posStart;//入口
+	private Point m_posGoal;//出口
+	private Point m_posCurrent;//记录节点
+
+	private static Point[][] m_ppMazePoints;//二维数组
+
+	private Point[]  m_pMazePathPoints;//一维数组存放路径点
+	private boolean isFound;
+
+	private List<Node> openList=new ArrayList<Node>();  //A*的OPEN表，本类对象分配空间并负责回收
+	private List<Node> closeList=new ArrayList<Node>(); //A*的CLOSED表，本类对象分配空间并负责回收
+	public static  int UNSEARCH_VALUE = -1;//静态常量，搜索过的节点信息
+	
+	 boolean PointEqualCom(Point pPos1, Point pPos2)
+	{
+		return pPos1.y== pPos2.y && pPos1.x == pPos2.x;
+	}
+	public AStar(Maze pMaze)
+	{
+		m_pMaze = pMaze;
+		m_ppMaze = m_pMaze.getM_ppMaze();
+		m_posStart = m_pMaze.getM_posStartLoc();
+		m_posGoal = m_pMaze.getM_posGoalLoc();
+		m_posCurrent = m_posStart;
+		m_pMazePathPoints = null;
+
+		//将开始节点加入A*的OPEN表
+		 Node sNode =new Node();
+		 sNode.setPos(m_posStart);
+	     openList.add(sNode);
+		isFound = false;
+
+		m_ppMazePoints = new Point[m_pMaze.getM_nWidth()][m_pMaze.getM_nHeight()];
+		/*for (int row = 0; row < m_pMaze.getM_nHeight(); row++)
+			m_ppMazePoints[row] = new Point[m_pMaze.getM_nWidth()];*/
+		
+		System.out.println(m_pMaze.getM_nHeight());
+		System.out.println(m_pMaze.getM_nWidth());
+		System.out.println(m_ppMazePoints.length);
+		for (int row = 0; row < m_pMaze.getM_nHeight(); row++)
+			for (int col = 0; col < m_pMaze.getM_nWidth(); col++) {
+				System.out.println(m_pMaze.getM_nHeight());
+				//m_ppMazePoints[row][col].y= UNSEARCH_VALUE;
+				//m_ppMazePoints[row][col].x= UNSEARCH_VALUE;
+				m_ppMazePoints[row][col]=new Point(UNSEARCH_VALUE,UNSEARCH_VALUE);
+			}
+	}
+	public Point[] GetPossibleMoves(Point pos)
+	{//从当前位置获取下一可达位置（排除障碍和已走位置）
+		Point[] possMoves = new Point[4];
+		for (int i = 0; i < 4; i++) {
+			possMoves[i].x = UNSEARCH_VALUE;
+			possMoves[i].y = UNSEARCH_VALUE;
+		}
+
+		if (m_ppMaze[pos.y][pos.x-1] == m_pMaze.PASS_VALUE) {
+			possMoves[0].x = pos.x - 1;
+			possMoves[0].y = pos.y;
+		}
+
+		if (m_ppMaze[pos.y][pos.x+1] == m_pMaze.PASS_VALUE) {
+			possMoves[1].x = pos.x + 1;
+			possMoves[1].y = pos.y;
+		}
+
+		if (m_ppMaze[pos.y-1][pos.x] == m_pMaze.PASS_VALUE) {
+			possMoves[2].x = pos.x;
+			possMoves[2].y = pos.y - 1;
+		}
+
+		if (m_ppMaze[pos.y+1][pos.x] == m_pMaze.PASS_VALUE) {
+			possMoves[3].x = pos.x;
+			possMoves[3].y = pos.y + 1;
+		}
+
+		return possMoves;
+	}
+	public Point[]GetAllPossibleMoves(Point pos)
+	{
+		Point[] possMoves = new Point[4];
+		for (int i = 0; i < 4; i++) {
+			possMoves[i].x = UNSEARCH_VALUE;
+			possMoves[i].y = UNSEARCH_VALUE;
+		}
+
+		if (m_ppMaze[pos.y][pos.x-1] != m_pMaze.OBSTACLE_VALUE) {
+			possMoves[0].x = pos.x - 1;
+			possMoves[0].y = pos.y;
+		}
+
+		if (m_ppMaze[pos.y][pos.x+1] != m_pMaze.OBSTACLE_VALUE) {
+			possMoves[1].x = pos.x + 1;
+			possMoves[1].y = pos.y;
+		}
+
+		if (m_ppMaze[pos.y-1][pos.x] != m_pMaze.OBSTACLE_VALUE) {
+			possMoves[2].x = pos.x;
+			possMoves[2].y = pos.y - 1;
+		}
+
+		if (m_ppMaze[pos.y+1][pos.x] != m_pMaze.OBSTACLE_VALUE) {
+			possMoves[3].x = pos.x;
+			possMoves[3].y = pos.y + 1;
+		}
+
+		return possMoves;
+	}
+	@SuppressWarnings("unlikely-arg-type")
+	public void AStarSearch() {
+		Node pNode;
+		isFound =false;
+		while(!openList.isEmpty()&&!isFound) {
+			pNode=openList.get(0);
+			openList.remove(pNode);
+			closeList.add(pNode);
+			
+			if(pNode.getPos()==m_posGoal) {
+				isFound=true;
+			}
+			else {
+				Point[] moves=GetAllPossibleMoves(pNode.getPos());
+				short depth = m_ppMaze[pNode.getPos().y][pNode.getPos().x];
+				for (int i = 0; i < 4; i++) {
+					if (moves[i].x == UNSEARCH_VALUE ||
+						moves[i].y == UNSEARCH_VALUE)
+						continue; //障碍物
+					if (m_ppMaze[moves[i].y][moves[i].x] == m_pMaze.PASS_VALUE) {//首次访问
+						m_ppMaze[moves[i].y][moves[i].x] = (short) (depth+1);
+						m_ppMazePoints[moves[i].y][moves[i].x] = pNode.getPos();
+						Node pNodeTmp = new Node();
+						pNodeTmp.setPos(moves[i]);
+						pNodeTmp.setG(depth+1);
+						pNodeTmp.setH(Math.abs(m_posGoal.y - moves[i].y) + Math.abs(m_posGoal.x - moves[i].x));
+						pNodeTmp.setF( pNodeTmp.getG() + pNodeTmp.getH());
+						openList.add(pNodeTmp);
+						Collections.sort(openList);
+					}
+						else if (m_ppMaze[moves[i].y][moves[i].x] > depth + 1) {//以前访问过，但路径不是最优
+							Point Pos=new Point (moves[i].x,moves[i].y);
+							int iterA;
+							for(iterA=0;iterA<openList.size();i++)
+							{
+								if (PointEqualCom(openList.get(iterA).getPos(),Pos)) {//从OPEN表中找到该节点，删除掉；如果没有找到，说明已经在CLOSED表中，重新加入OPEN表即可
+									 closeList.add(openList.get(iterA));
+									 openList.remove(openList.get(iterA));
+									 //放入CLOSED表，回收空间用
+									break;
+								}
+							}
+							//更新信息，重新加入OPEN表
+							m_ppMazePoints[moves[i].y][moves[i].x] = pNode.getPos();
+							Node pNodeTmp =new Node();
+							pNodeTmp.setPos(moves[i]);
+							pNodeTmp.setG(depth+1);
+							pNodeTmp.setH(Math.abs(m_posGoal.y - moves[i].y) + Math.abs(m_posGoal.x - moves[i].x));
+							pNodeTmp.setF( pNodeTmp.getG() + pNodeTmp.getH());
+
+							openList.add(pNodeTmp);
+							Collections.sort(openList);
+						}
+						if (moves[i].y == m_posGoal.y &&
+							moves[i].x == m_posGoal.x) {
+							isFound = true;
+						}
+				}
+			}
+		}
+	}
+	Point[] GetPathPoints(int outCount)
+	{
+		boolean isPath;
+		int count;
+
+		Point goalPos;
+		Point curPos;
+
+		isPath = false;
+		count = 1;
+		goalPos = m_pMaze.getM_posGoalLoc();
+		curPos = m_ppMazePoints[goalPos.y][goalPos.x];
+
+		while (curPos.x != UNSEARCH_VALUE && curPos.y != UNSEARCH_VALUE) {
+			count++;
+			if (curPos.y == m_pMaze.getM_posStartLoc().y && curPos.x == m_pMaze.getM_posStartLoc().x) {
+				isPath = true;
+				break;
+			}
+			curPos = m_ppMazePoints[curPos.y][curPos.x];
+		}
+
+		if (isPath) {
+			outCount = count;
+			m_pMazePathPoints = new Point[count];
+			isPath = false;
+			count = 1;
+			goalPos = m_pMaze.getM_posGoalLoc();
+			curPos = m_ppMazePoints[goalPos.y][goalPos.x];
+			m_pMazePathPoints[count-1] = goalPos;
+
+			while (curPos.x != UNSEARCH_VALUE && curPos.y != UNSEARCH_VALUE) {
+				count++;
+				m_pMazePathPoints[count-1] = curPos;
+				if (curPos.y == m_pMaze.getM_posStartLoc().y && curPos.x == m_pMaze.getM_posStartLoc().x) {
+					isPath = true;
+					break;
+				}
+				curPos = m_ppMazePoints[curPos.y][curPos.x];
+			}
+		}
+		else
+			m_pMazePathPoints = null;
+
+		return m_pMazePathPoints;
+	}
+	}
+
+	
+

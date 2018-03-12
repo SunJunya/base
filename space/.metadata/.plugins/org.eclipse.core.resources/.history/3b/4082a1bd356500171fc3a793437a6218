@@ -1,0 +1,22 @@
+package com.genemap;
+
+import java.sql.Connection;
+import java.sql.Statement;
+
+public class Insert_genemap {
+    public void insertDB(float sort,int month,int day,int year,
+    		String cyto_location,String gene_symbols,String conf,
+    		String gene_name,int mim_number,String mapping_method,
+    		String comments,String pheotype,String mouse_gene){
+    	Connection connection=null;
+    	Statement stm=null;
+    	boolean flag=false;
+    	String sql="insert into genemap values('"+sort+"','"+month+"','"+day+"','"+year+"','"+cyto_location+"',"
+    			+ "'"+gene_symbols+"','"+conf+"','"+gene_name+"',)";
+    	try {
+			con=getCon();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    }
+}

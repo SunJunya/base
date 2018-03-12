@@ -1,0 +1,84 @@
+package ZhaoJin;
+
+import java.awt.Point;
+import java.util.Random;
+
+public class Maze {
+		//声明三个迷宫单元
+	public static short PASS_VALUE = -1; //迷宫单元可通过 
+	public static  short OBSTACLE_VALUE = -2; //迷宫的障碍物
+	public	static  short START_LOC_VALUE = 0; // search depth for start = 0,入口起步为0
+
+	public	Point m_posStartLoc; //迷宫的入口
+	public	Point m_posGoalLoc;   //迷宫的出口
+
+	private	int m_nWidth;  //迷宫的宽度
+	private	int m_nHeight;  //迷宫的高度
+
+	private short[][] m_ppMaze;  //迷宫的二维数组
+
+	public int getM_nWidth() { //得到迷宫的宽度
+		return m_nWidth;
+	}
+
+	public int getM_nHeight() {//得到迷宫的高度
+		return m_nHeight;
+	}
+
+	public Point getM_posGoalLoc() {//得到迷宫的出口
+		return m_posGoalLoc;
+	}
+
+	public Point getM_posStartLoc() {//得到迷宫的入口
+		return m_posStartLoc;
+	}
+
+	public short[][] getM_ppMaze() { //返回迷宫的二维数组
+		return m_ppMaze;
+	}
+	public short GetValue(int row, int col)
+	{
+		return m_ppMaze[row][col];  //获取迷宫每个单元的值
+	}
+
+	public void SetValue(int row, int col, short value)
+	{
+		m_ppMaze[row][col] = value;  //设置迷宫每个单元的值
+	}
+	public Maze(int width, int height)
+	{
+		//在迷宫外围设置障碍物，便于搜索
+		m_nWidth = width + 2;  //在迷宫原来宽度基础上加上障碍物的宽度
+		m_nHeight = height + 2;  //在迷宫原来高度基础上加上障碍物的高度
+
+		m_ppMaze = new short[m_nHeight][m_nWidth]; //初始化二维数组指针
+		for (int row = 0; row < m_nHeight; row++)
+			m_ppMaze[row] = new short[m_nWidth];
+		
+		for (int row = 0; row < m_nHeight; row++)
+			for (int col = 0; col < m_nWidth; col++)
+				m_ppMaze[row][col] = PASS_VALUE;   //给迷宫的每个单元赋予初始值为可通过
+
+		for (int row = 0; row < m_nHeight; row++)
+			m_ppMaze[row][0] = m_ppMaze[row][m_nWidth-1] = OBSTACLE_VALUE;//赋予初始值为不可通过
+
+		for (int col = 0; col < m_nWidth; col++)
+			m_ppMaze[0][col] = m_ppMaze[m_nHeight-1][col] = OBSTACLE_VALUE;//赋予初始值为不可通过
+
+		Random random=new Random();//对随机数种子进行初始化，若不初始化则每次搜索的序列都一样
+
+		int max_obstacles = (m_nWidth * m_nHeight) /4; //障碍物的最大数
+		for (int i = 0; i < max_obstacles; i++) {
+			//生成随机数y和x,并将其位置处设置为障碍物
+			int x =random.nextInt(m_nWidth) ;//获取宽度的随机数
+			int y =random.nextInt(m_nHeight);//获取高度的随机数
+			m_ppMaze[y][x] = OBSTACLE_VALUE;//设置其为不通过
+		}
+		//设置（1,1）处为入口，且迷宫从0起步
+		Point m_posStartLoc=new Point(1,1);
+		m_ppMaze[m_posStartLoc.y][m_posStartLoc.x] = START_LOC_VALUE; 
+		//障碍物冗余故-2，并将冗余的障碍物设置为可通过
+		Point m_posGoalLoc = new Point(m_nWidth - 2, m_nHeight - 2);
+		m_ppMaze[m_posGoalLoc.y][m_posGoalLoc.x] = PASS_VALUE;
+	}
+}

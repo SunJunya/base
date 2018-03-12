@@ -1,0 +1,174 @@
+package ems.teacher.service;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
+
+
+import ems.util.ConnectDatabase;
+
+public class teacherServiceimp implements teacherService{
+	
+	public teacherServiceimp(){};
+	@Override
+	public void updatePassword(String t_id, Scanner scan) throws Exception {
+		ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+		String sql = "update teacher set t_password =";
+		ed.initParm();  //连接数据库
+		Statement stmt = ed.getStatement(); //得到一个Statement
+		System.out.print("请输入您要修改的密码:");
+		String password = scan.next();
+		while(scan.equals(" ")||scan.equals("\n"))
+			password = scan.next();
+		sql += "\'"+password+"\'";
+		sql += " where t_id = "+"\'"+t_id+"\';";
+		stmt.executeUpdate(sql);
+		System.out.println("您的密码已经修改完成!");	
+	}
+
+	@Override
+	public void queryClassTable(String t_id) throws Exception {
+		String sql = "SELECT cl_name, c_name, classroom, week, class_time_start, class_time_end FROM "
+				+ " class_table WHERE t_id = ";
+		sql += "\'"+t_id+"\'";
+		ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+		ed.initParm();  //连接数据库
+		Statement stmt = ed.getStatement(); //得到一个Statement
+		queryClassTable(stmt, sql, "Monday");
+		queryClassTable(stmt, sql, "Tuesday");
+		queryClassTable(stmt, sql, "Wednesday");
+		queryClassTable(stmt, sql, "Thursday");
+		queryClassTable(stmt, sql, "Friday");
+		ed.closeConnectDatabase();
+	}
+	void queryClassTable(Statement stmt, String sql, String week) throws SQLException{
+		sql += "AND week = "+"\'"+week+"\' ORDER BY class_time_start;";
+		ResultSet rs = stmt.executeQuery(sql); // 使用executeQuery()
+		while (rs.next()) {
+			System.out.println(rs.getString(4) + "\t" + rs.getString(1) + "\t" + rs.getString(2) + "\t"
+					+ rs.getString(3) + "\t" + rs.getString(5) + "-" + rs.getString(6));
+		}
+	}
+
+	@Override
+	public void exportClassTable(String t_id) throws Exception {
+		String sql = "SELECT cl_name, c_name, classroom, week, class_time_start, class_time_end FROM "
+				+ " class_table WHERE t_id = ";
+		sql += "\'"+t_id+"\'";
+		ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+		ed.initParm();  //连接数据库
+		Statement stmt = ed.getStatement(); //得到一个Statement
+		exportClassTable(stmt, sql, "Monday");
+		exportClassTable(stmt, sql, "Tuesday");
+		exportClassTable(stmt, sql, "Wednesday");
+		exportClassTable(stmt, sql, "Thursday");
+		exportClassTable(stmt, sql, "Friday");
+		System.out.println("您的成绩已经存到D:/teacherclassTable.txt!");
+		ed.closeConnectDatabase();
+	}
+	void exportClassTable(Statement stmt, String sql, String week) throws Exception {
+		File file =new File("D:/teacherclassTable.txt");
+		 //if file doesnt exists, then create it
+	    if(!file.exists()){
+	       file.createNewFile();
+	    }
+	    FileWriter fileWritter = new FileWriter(file,true);
+        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+        sql += "AND week = "+"\'"+week+"\' ORDER BY class_time_start;";
+		ResultSet rs = stmt.executeQuery(sql);
+		while (rs.next()) {
+			String data =rs.getString(4) + "\t" + rs.getString(1) + "\t" + rs.getString(2) + "\t"
+					+ rs.getString(3) + "\t" + rs.getString(5) + "-" + rs.getString(6)+"\r\n";
+			bufferWritter.write(data);
+			}
+
+		bufferWritter.close();
+		}
+
+
+	@Override
+	public void insertScore(String t_id,Scanner scan) throws Exception {
+		String sql = "SELECT s_name, s_sno, s_dept, cl_name FROM student JOIN class ON"
+				+ " s_class = class.cl_id WHERE cl_id ="
+				+ " (SELECT DISTINCT cl_id FROM class_table WHERE t_id =";
+				 //AND cl_name = '软件11504' AND c_name = '计算机网络原理');";
+		System.out.print("请输入你要录入成绩的课程编号: ");
+		String lession = scan.next();
+		System.out.print("请输入你要录入成绩的班级: ");
+		String cl = scan.next();
+		sql += "\'"+t_id+"\'"+" AND cl_name = "+"\'"+cl+"\'"+" AND c_id = "+"\'"+lession+"\');";
+		ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+		ed.initParm();  //连接数据库
+		Statement stmt = ed.getStatement(); //得到一个Statement
+		ResultSet rs = stmt.executeQuery(sql); // 使用executeQuery()
+		while (rs.next()) {
+			System.out.print("请输入"+rs.getString(1)+"的成绩:");
+			String score = scan.next();
+			Statement stmt1 = ed.getStatement(); //得到一个Statement
+			stmt1.execute("INSERT INTO score(s_sno, c_id, score)"
+					+ " VALUES "
+					+ "("+"\'"+rs.getString(2)+"\', "
+					+ "\'"+lession+"\', "+"\'"+score+"\' );");
+			System.out.println(rs.getString(1)+"的成绩录入完毕");
+		}
+	}
+
+	@Override
+	public void exportScore(String t_id, Scanner scan) throws Exception {
+		//④录入成绩(根据教师输入的课程号，一个班一个班地录入)
+			String sql = "SELECT score.s_sno, s_name, c_id, score FROM score"+
+					" JOIN student ON student.s_sno = score.s_sno"+
+					" WHERE c_id = ";
+			System.out.print("请输入你要导出成绩的课程编号: ");
+			String lession = scan.next();
+			sql += "\'"+lession+"\';";
+			ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+			ed.initParm();  //连接数据库
+			Statement stmt = ed.getStatement(); //得到一个Statement
+			ResultSet rs = stmt.executeQuery(sql); // 使用executeQuery()
+			File file =new File("D:/teacherScore.txt");
+			 //if file doesnt exists, then create it
+			   if(!file.exists()){
+			      file.createNewFile();
+			   }
+			FileWriter fileWritter = new FileWriter(file,true);
+		    BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+		    while (rs.next()) {
+		    String data =rs.getString(1) + "\t" + rs.getString(2) + "\t" + rs.getString(3) + "\t"
+					+ rs.getString(4) + "\r\n";
+			bufferWritter.write(data);
+			}
+			bufferWritter.close();
+			System.out.println("成绩已经导入到了 D:/teacherScore.txt！");
+		}
+
+	@Override
+	public void queryAllStudent(String t_id, Scanner scan) throws Exception {
+		String sql = "SELECT s_name, s_sno, s_dept, cl_name FROM student JOIN class ON"
+				+ " s_class = class.cl_id WHERE cl_id ="
+				+ " (SELECT DISTINCT cl_id FROM class_table WHERE t_id =";
+				 //AND cl_name = '软件11504' AND c_name = '计算机网络原理');";
+		System.out.print("请输入你要课程: ");
+		String lession = scan.next();
+		System.out.print("请输入你要查的班级: ");
+		String cl = scan.next();
+		sql += "\'"+t_id+"\'"+" AND cl_name = "+"\'"+cl+"\'"+" AND c_name = "+"\'"+lession+"\');";
+		ConnectDatabase ed = new ConnectDatabase("mysql.ini");
+		ed.initParm();  //连接数据库
+		Statement stmt = ed.getStatement(); //得到一个Statement
+		ResultSet rs = stmt.executeQuery(sql); // 使用executeQuery()
+		System.out.println("您教授的该班的学生的名单如下:");
+		System.out.println("-------------------------------------------------------");
+		while (rs.next()) {
+			System.out.println(rs.getString(1) + "\t" + rs.getString(2) + "\t" + rs.getString(3) + "\t"
+					+ rs.getString(4));
+		}
+		System.out.println("-------------------------------------------------------");
+		ed.closeConnectDatabase();
+	}
+
+}

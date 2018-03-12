@@ -1,0 +1,71 @@
+package test.excel;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class DBhelper {
+	String user="root";
+	String password="root123";
+    String driver="com.mysql.jdbc.Driver";
+    String url="jdbc:mysql://localhost:3306/demo2";
+    //jdbc:mysql://localhost:3306/
+    Connection con=null;
+    ResultSet res=null;
+    public void DataBase(){
+    	try{
+    		Class.forName(driver).newInstance();   					
+			con=DriverManager.getConnection(url, user, password);
+    	}catch (ClassNotFoundException e) {
+			// TODO: handle exception
+    		System.err.println("装载JDBC驱动程序失败");
+    		e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("无法链接数据库");
+			e.printStackTrace();
+		}
+    }
+    public ResultSet Search(String sql,String str[]){
+    	DataBase();
+    	try{
+    		PreparedStatement pst=con.prepareStatement(sql);
+    		if(str!=null){
+    			for(int i=0;i<str.length;i++){
+    				pst.setString(6, str[i]);
+//    				设置给定的java String指定参数值。 
+    			}
+    		}
+    		res=pst.executeQuery();
+    		//执行sql查询本 PreparedStatement对象并返回查询所产生的 ResultSet对象
+    	}catch (Exception e) {
+			// TODO: handle exception
+    		e.printStackTrace( );
+		}
+		return res;
+    	
+    }
+//    public int AddU(String sql,String[] str){
+//    	int a=0;
+//    	DataBase();
+//    	try{
+//    		PreparedStatement pst=con.prepareStatement(sql);
+//    		if(str!=null){
+//    			for(int i=0;i<str.length;i++){
+//    				pst.setString(i+1,str[i]);
+//    			}
+//    		}
+//    		a=pst.executeUpdate();
+////    		在这 PreparedStatement对象执行SQL语句，它必须是一个SQL数据操作语言（DML）语句，
+////    		如 INSERT， UPDATE或 DELETE；或一个SQL语句没有返回，如DDL语句。 
+//    		System.out.println("数据插入成功");
+//    	}catch (Exception e) {
+//			// TODO: handle exception
+//    		e.printStackTrace();
+//		}
+//		return a;
+//    	
+//    }
+//	
+}

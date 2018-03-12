@@ -1,0 +1,50 @@
+package com.Sql;
+import java.sql.*;
+
+public class Sqldemo {
+       public static void main(String[] args){
+    	   String driver="com.mysql.jdbc.Driver";//驱动程序名
+    	   String url="jdbc:mysql://127.0.0.1:3306/suliya";//ulr指向要访问的数据库demo1；
+    	   String user="sjy";//mysql配置时的用户名；
+    	   String password="root123";//mysql配置时的密码；
+    	   String name;
+    	   try{
+    		   Class.forName(driver);//加载驱动程序；
+    		   Connection conn=DriverManager.getConnection(url,user,password);//连接数据库
+    		   if(!conn.isClosed())
+    			   System.out.println("succeeded connection to the database");
+    		   Statement statement=conn.createStatement();//用statement来执行sql语句
+    		   String sql="select * from course";//要执行的SQL语句
+    		   ResultSet rs=statement.executeQuery(sql);//结果集；
+    		   String sql2="insert into course values('10','选修课')";
+    		   ResultSet rs2=statement.executeQuery(sql2);
+    		   String sql3="select * from course";//要执行的SQL语句
+    		   ResultSet rs3=statement.executeQuery(sql3);//结果集；
+    	       while(rs.next()){
+    	    	   //name=rs.getString("name");
+    	    	   System.out.println(rs.getString(1)+"\t"+rs.getString(2)+"\t");    	   
+    	       }
+    	       rs.close();
+    	       conn.close();
+    	   }
+    	   catch (ClassNotFoundException e) {
+			// TODO: handle exception
+    		   System.out.println("sorry can't find the Driver!");
+    		   e.printStackTrace();
+		}
+    	   catch (SQLException e) {
+			// TODO: handle exception
+    		   e.printStackTrace();
+		}
+    	   catch (Exception e){
+    		   e.printStackTrace();
+    	   }
+    		   
+    		   
+    		   
+    		   
+    		   
+     }
+    	   
+    	   
+}

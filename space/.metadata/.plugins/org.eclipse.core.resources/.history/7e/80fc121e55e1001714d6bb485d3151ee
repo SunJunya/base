@@ -1,0 +1,100 @@
+package com.collection;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
+class Employee {
+	private String name;
+	private String address;
+	private int count;
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Employee(String name, String address, int count) {
+		super();
+		this.name = name;
+		this.address = address;
+		this.count = count;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	@Override
+	public String toString() {
+		return "Employee [name=" + name + ", address=" + address + ", count=" + count + "]";
+	}
+	
+}
+
+public class ListDemo {
+	public static void main(String[] args) {
+		File file=new File("D:\\员工.txt");
+		List<Employee> employees=new ArrayList<Employee>();
+		try {
+			file.createNewFile();
+			Writer out=new FileWriter(file);
+			String input="李文,北京"+"\r\n"+"李希,北京"+"\r\n"+"张小小,河南"+"\r\n"+"王文,河北"+
+                           "\r\n"+"董信,北京"+"\r\n"+"张坤,北京"+"\r\n"+"万三,江西"+"\r\n"+"戴天,河南"+
+                           "\r\n"+"庞大,湖北"+"\r\n"+"彭克,浙江";
+			out.write(input);
+			out.close();		
+			RandomAccessFile raf=new RandomAccessFile(file, "r");
+			String  line=raf.readLine();
+			while (line!=null) {
+				Employee employee=new Employee();
+				String[] strings=line.split(",");
+				employee.setName(transtr(strings[0]));
+				employee.setAddress(transtr(strings[1]));
+				employees.add(employee);
+				line=raf.readLine();				
+			}			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for(int i=0;i<employees.size();i++) {
+			int count=0;		
+			for(Employee employee:employees){
+				if(employees.get(i).getAddress().equals(employee.getAddress())){
+					count++;
+				}
+			}			
+			employees.get(i).setCount(count);
+		}	
+	}
+
+	private static String transtr(String oldstr) {
+		String newstr = "";
+	    try {
+	      newstr = new String(oldstr.getBytes("ISO-8859-1"), "GBK");
+	     } catch (UnsupportedEncodingException e) {
+	     e.printStackTrace();
+	     }
+	     return newstr;
+	}
+	
+
+}

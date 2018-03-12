@@ -1,0 +1,17 @@
+package controller;
+
+import java.sql.ResultSet;
+
+import bean.User;
+import dao.Usermapper;
+
+public class Usercontroller {
+      public boolean loginin(User user) {
+    	  ResultSet rSet=null;
+    	  Usermapper usermapper=new Usermapper();
+    	  rSet=usermapper.loginin(user);
+    	  
+		return false;
+		
+	}
+}

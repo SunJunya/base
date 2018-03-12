@@ -1,0 +1,35 @@
+package controller;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import bean.User;
+import dao.Usermapper;
+
+public class Usercontroller {
+      public void loginin(User user) {
+    	  ResultSet rSet=null;
+    	  Usermapper usermapper=new Usermapper();
+    	  rSet=usermapper.loginin(user);
+    	  if(rSet!=null){
+    		  try {
+				while(rSet.next()){
+					System.out.println(rSet.getString("username"));
+					System.out.println(rSet.getString("PassWord"));
+					System.out.println(rSet.getString("Index"));
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		  System.out.println("µÇÂ¼³É¹¦");
+    	  }
+    	  
+		
+	}
+      public static void main(String[] args) {
+		Usercontroller usercontroller=new Usercontroller();
+		User user=new User("123","123","123");
+		usercontroller.loginin(user);
+	}
+}

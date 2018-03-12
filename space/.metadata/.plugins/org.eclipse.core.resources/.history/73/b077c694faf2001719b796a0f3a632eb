@@ -1,0 +1,12 @@
+package dao;
+
+import java.sql.ResultSet;
+
+import bean.User;
+
+public class Loginmapper {
+    public ResultSet loginin(User user) {
+		return null;
+		
+	}
+}

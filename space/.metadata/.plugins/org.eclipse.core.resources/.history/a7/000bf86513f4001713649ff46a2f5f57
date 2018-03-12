@@ -1,0 +1,26 @@
+package test;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * 测试布局管理器
+ *
+ * @Author menglanyingfei
+ * @Created on 2018.01.03 9:26
+ */
+public class BorderLayoutTest {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("标题");
+        frame.setLayout(new BorderLayout(3, 3));
+        frame.add(new JButton("东"), BorderLayout.EAST);
+        frame.add(new JButton("西"), BorderLayout.WEST);
+        frame.add(new JButton("南"), BorderLayout.SOUTH);
+        frame.add(new JButton("北"), BorderLayout.NORTH);
+
+        frame.setBounds(100, 100, 400, 400);
+//        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

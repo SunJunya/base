@@ -1,0 +1,29 @@
+package six.object;
+
+public class Object {
+/*
+ * object类：公共的父类
+ * 类中的主要方法：  
+ * boolean equals(Object obj)   对象比较；默认是比较地址的
+ * int hashCode()      取得hash码
+ * String toString()   对象打印时调用
+ * */
+	
+	private String name;
+	private int age;
+	public  Object(String name ,int age){
+		this.name=name;
+		this.age=age;
+	}
+	
+	
+	public String toString(){
+		return "姓名："+this.name+"；年龄："+this.age;
+	}
+	
+	public static void main(String args[]){
+		Object object=new Object("suliya",29);
+		System.out.println("the news:"+object);
+		
+	}
+}

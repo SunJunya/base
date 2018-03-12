@@ -1,0 +1,43 @@
+package com.cut_string;
+
+import java.util.regex.*;
+
+
+public class Cut_String {
+   public static void main(String []args){
+	   
+	   String string="id: HP:0000009 "//;
+	   		+ "name: Functional abnormality of the bladder "
+	   		+ "alt_id: HP:0004424"
+	   		+ "alt_id: HP:0008731"
+	   		+ "def: 'Dysfunction of the urinary bladder'. [HPO:probinson]"
+	   		+ "synonym: 'Poor bladder function' EXACT []"
+	   		+ "xref: UMLS:C3806583"
+	   		+ "is_a: HP:0000014 ! Abnormality of the bladder";
+		
+       String pattern1="^id:\\s+HP:(\\d+)";
+	   Pattern r1=Pattern.compile(pattern1);
+	   Matcher m1=r1.matcher(string);
+	   
+	   String pattern2="^is_a:\\s+HP:(\\d+)";
+	   Pattern r2=Pattern.compile(pattern2);
+	   Matcher m2=r2.matcher(string);
+	   	   
+	   if(m1.find()){
+		   System.out.println("id: HP:"+m1.group(1));
+		   
+	   }
+	   else{
+		   System.out.println("m1 no find");
+	   }
+	   
+	   if(m2.find()){
+		   System.out.println("is_a: HP:"+m2.group(0));
+		   
+	   }
+	   else{
+		   System.out.println("m2 no find");
+	   }
+
+   }	   
+}

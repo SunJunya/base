@@ -1,0 +1,19 @@
+package test.excel;
+
+import java.util.List;
+
+public class ExcelToDB {
+     public static void main(String[] args){
+    	 List<Entity> listExcel=Service.getAllByExcel("E://白原科技//辅助诊断系统-后台数据//hpo_chinese.xls");
+    	 DBhelper db=new DBhelper();
+    	 for(Entity entity:listExcel){
+    		 String hp_id=entity.getHp_id();
+    		 if(!Service.isExist(hp_id)){
+    			String sql="insert into hpo(main_class,hp_id,name_e,name_c,definition_e,definition_c;) values(?,?,?,?,?,?)";
+     			String[] str=new String[]{entity.getMain_class(),entity.getHp_id(),entity.getName_e(),entity.getName_c()+
+     					entity.getDefinition_e(),entity.getDefinition_c()""};
+     			db.AddU(sql, str);	
+    		 }
+    	 }
+     }
+}

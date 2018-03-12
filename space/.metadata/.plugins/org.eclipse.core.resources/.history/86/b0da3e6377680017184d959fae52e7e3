@@ -1,0 +1,36 @@
+package com.excel;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class StuService {
+    public static List<StuEntity> getALlByDb(){
+    	List<StuEntity> list=new ArrayList<StuEntity>();
+    	try {
+			DBhepler db=new DBhepler();
+			String sql="select * from stu";
+			ResultSet rs=db.Search(sql, null);
+			while(rs.next()){
+				int id=rs.getInt("id");
+				String name=rs.getString("name");
+				String sex=rs.getString("sex");
+				int num=rs.getInt("num");
+				list.add(new StuEntity(id,name,sex,num));
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return list;
+    }
+
+	
+
+	public static List<StuEntity> getALlByExcel(String file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
+   
+}

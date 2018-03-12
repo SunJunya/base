@@ -1,0 +1,174 @@
+package wtu.sj;
+
+import java.io.*;
+import java.net.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
+
+public class Server {
+    public static void main(String args[]) {
+        ServerSocket server = null;
+        Socket you = null;
+        Map<String, ServerThread> peopleList = new HashMap<String, ServerThread>();
+
+        while (true) {
+            try {
+                server = new ServerSocket(4331);
+            } catch (IOException e1) {
+                System.out.println("正在监听");
+            }
+            try {
+                you = server.accept();
+                InetAddress address = you.getInetAddress();
+                System.out.println("客户的IP:" + address);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (you != null) {
+                ServerThread peopleThread = new ServerThread(you, peopleList);
+                peopleThread.start();
+            }
+        }
+    }
+}
+
+class ServerThread extends Thread {
+    String name = null;
+    Socket socket = null;
+    DataOutputStream out = null;
+    DataInputStream in = null;
+    Map<String, ServerThread> peopleList = null;
+
+    ServerThread(Socket t, Map<String, ServerThread> list) {
+        peopleList = list;
+        socket = t;
+        try {
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        Connection conn;
+        Statement stmt = null;
+        ResultSet rs;
+        String driverName = "com.mysql.jdbc.Driver";
+        String url = "jdbc:mysql://127.0.0.1:3306/chatroom_user?useUnicode=true&characterEncoding=utf-8";
+        String userName = "root";
+        String password = "lxy";
+
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(url, userName, password);
+            stmt = conn.createStatement();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        boolean success = false;
+
+        // 服务器端线程
+        while (true) {
+            String s, pw;
+            // 已上线的所有用户
+            String users = "";
+            try {
+                s = in.readUTF();
+                // 进行登录
+                if (s.startsWith("姓名:")) {
+                    // [ ), 得到姓名
+                    name = s.substring(s.indexOf(":") + 1, s.indexOf("#"));
+                    pw = s.substring(s.indexOf("#") + 1);
+                    try {
+                        rs = stmt.executeQuery("select * from `user` where name='" + name + "' and pw='" + pw + "' ");
+                        boolean boo = peopleList.containsKey(name);
+                        if (boo) {
+                            out.writeUTF("用户已登录！");
+                            System.out.println("用户已登录！");
+                        } else if (rs.next()) {
+                            System.out.println("登陆");
+                            success = true;
+                            peopleList.put(name, this);
+
+                            Collection<ServerThread> values = peopleList.values();
+                            for (String str : peopleList.keySet()) {
+                                users += str + " ";
+                            }
+                            Iterator<ServerThread> chatPersonList = values.iterator();
+
+                            while (chatPersonList.hasNext()) {
+                                // * 分割users
+                                chatPersonList.next().out.writeUTF("欢迎" + name + "上线*" + users);
+                            }
+                        } else {
+                            out.writeUTF("用户名或密码不对，请重新登录");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 进行注册
+                } else if (s.startsWith("注册:")) {
+                    name = s.substring(s.indexOf(":") + 1, s.indexOf("#"));
+                    pw = s.substring(s.indexOf("#") + 1);
+                    try {
+                        int result = stmt.executeUpdate("insert into `user`(name, pw) values('" + name + "' ,'" + pw + "') ");
+                        if (result > 0)
+                            success = true;
+                        else
+                            out.writeUTF("用户名重复，请重新注册");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    // 进行聊天发送
+                } else if (s.startsWith("聊天内容") && success) {
+                    // 聊天框里的内容
+                    // "聊天内容:" + name + "@" + nameTo + "+:%" + s
+                    // 修改
+                    String message = s.substring(s.indexOf("%") + 1);
+                    if (s.contains("@")) {
+                        String name = s.substring(s.indexOf(":") + 1, s.indexOf("@"));
+                        String nameTo = s.substring(s.indexOf("@") + 1, s.indexOf("+"));
+                        peopleList.get(nameTo).out.writeUTF("@" + message + "|" + name);
+                    } else {
+                        Collection<ServerThread> values = peopleList.values();
+                        Iterator<ServerThread> chatPersonList = values.iterator();
+                        while (chatPersonList.hasNext()) {
+                            chatPersonList.next().out.writeUTF(message);
+                        }
+                    }
+
+
+
+                }
+            } catch (IOException ee) {
+                Collection<ServerThread> values = peopleList.values();
+                Iterator<ServerThread> chatPersonList = values.iterator();
+                while (chatPersonList.hasNext()) {
+                    try {
+                        ServerThread th = chatPersonList.next();
+                        if (th != this && th.isAlive())
+                            th.out.writeUTF(name + "离开了");
+                    } catch (IOException eee) {
+                        eee.printStackTrace();
+                    }
+                }
+                peopleList.remove(name);
+                try {
+                    socket.close();
+                } catch (IOException eee) {
+                    eee.printStackTrace();
+                }
+                System.out.println(name + "离开了");
+                break;
+            }
+        }
+    }
+}

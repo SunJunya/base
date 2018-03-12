@@ -1,0 +1,87 @@
+package com.collection;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
+class Employee {
+	private String name;
+	private String address;
+	public Employee(String name, String address) {
+		super();
+		this.name = name;
+		this.address = address;
+	}
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+}
+
+public class ListDemo {
+	public static void main(String[] args) {
+		File file=new File("D:\\员工.txt");
+		try {
+			file.createNewFile();
+			Writer out=new FileWriter(file);
+			String input="李文,北京 "+"\r\n"+"李希，北京"+"\r\n"+"张小小	河南  "+"\r\n"+"王文	河北"+
+                           "\r\n"+"董信	北京"+"\r\n"+"张坤，北京"+"\r\n"+"万三，江西"+"\r\n"+"戴天，河南"+
+                           "\r\n"+"庞大，湖北"+"\r\n"+"彭克，浙江";
+			out.write(input);
+			out.close();
+			
+			RandomAccessFile raf=new RandomAccessFile(file, "r");
+			String  line=raf.readLine();
+			while (line!=null) {
+				String[] strings=line.split("，");
+				System.out.println(strings.length);
+				System.out.println(transtr(strings[0]));
+				line=raf.readLine();
+				
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		List<Employee> employees =new ArrayList<>();
+	//	employees.add(new Employee("",""));
+	//	int[] count=new int[employees.size()];
+		for(Employee employee:employees) {
+			int i=0;
+		}
+	}
+
+	private static String transtr(String oldstr) {
+		String newstr = "";
+	    try {
+	      newstr = new String(oldstr.getBytes("ISO-8859-1"), "GBK");
+	     } catch (UnsupportedEncodingException e) {
+	     e.printStackTrace();
+	     }
+	     return newstr;
+	}
+	
+
+}

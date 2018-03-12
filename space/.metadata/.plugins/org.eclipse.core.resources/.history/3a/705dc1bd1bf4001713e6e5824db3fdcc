@@ -1,0 +1,228 @@
+package wtu.sj;
+
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class Client extends JFrame implements Runnable, ActionListener {
+    Button reg, login, send;
+    TextField inputName, inputPw, inputIp, inputContent;
+    JTextArea chatResult;
+
+    // JList控件
+    private JList userList;
+    private DefaultListModel listModel;//创建并且设置列表数据模型
+    private JScrollPane rightScroll;
+    private JScrollPane leftScroll;
+    //JScrollPane 管理视口、可选的垂直和水平滚动条以及可选的行和列标题视口。
+    private JSplitPane centerSplit;
+
+    String name = "";
+    String nameTo = "";
+    Socket socket = null;
+    DataInputStream in = null;
+    DataOutputStream out = null;
+
+    Client() {
+        listModel = new DefaultListModel();
+        userList = new JList(listModel);
+
+        // 构造时进行页面渲染
+        setLayout(new BorderLayout());
+        Panel pNorth, pSouth;
+        setTitle("聊天客户端");
+        pNorth = new Panel();
+        pSouth = new Panel();
+        inputName = new TextField(6);
+        inputPw = new TextField(6);
+        inputIp = new TextField(12);
+        // 设置默认值
+        inputIp.setText("127.0.0.1");
+        inputContent = new TextField(22);
+        send = new Button("发送");
+        reg = new Button("注册");
+        login = new Button("登录");
+        send.setEnabled(false);
+
+        chatResult = new JTextArea();
+        chatResult.setFont(new Font("宋体", Font.BOLD, 20));
+
+        // 中间增加一个JPanel, 进行修改
+//        JPanel center = new JPanel();
+//        chatResultjs = new JScrollPane(chatResult);
+//        center.add(chatResultjs);
+
+        rightScroll = new JScrollPane(userList);
+        rightScroll.setBorder(new TitledBorder("在线用户列表"));
+
+        leftScroll = new JScrollPane(chatResult);
+        leftScroll.setBorder(new TitledBorder("消息显示区"));
+
+        centerSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftScroll,
+                rightScroll);
+        //使用 JSplitPane.HORIZONTAL_SPLIT 可让分隔窗格中的两个 Component 从左到右排列
+        centerSplit.setDividerLocation(420);
+
+        pNorth.add(new Label("用户名:"));
+        pNorth.add(inputName);
+        pNorth.add(new Label("密码:"));
+        pNorth.add(inputPw);
+        pNorth.add(new Label("服务器IP:"));
+        pNorth.add(inputIp);
+        pNorth.add(login);
+        pNorth.add(reg);
+
+        pSouth.add(new Label("输入聊天内容:"));
+        pSouth.add(inputContent);
+        pSouth.add(send);
+
+        send.addActionListener(this);
+        login.addActionListener(this);
+        reg.addActionListener(this);
+        inputName.addActionListener(this);
+        inputContent.addActionListener(this);
+
+        add(pNorth, BorderLayout.NORTH);
+        add(pSouth, BorderLayout.SOUTH);
+        add(centerSplit, BorderLayout.CENTER);
+
+        setBounds(100, 100, 550, 300);
+        setVisible(true);
+        // （在容器中添加或移除组件，或者更改与布局相关的信息），应该调用下述方法。
+        // Class Container 方法
+        // void validate() 验证此容器及其所有子组件
+        validate();
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // 修改
+        // 私聊(双击触发)
+        userList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent event) {
+                nameTo = userList.getSelectedValue().toString();
+                inputContent.setText("@" + nameTo + ":");
+            }
+        });
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        // 点击登录按钮
+        if (e.getSource() == login) {
+            name = inputName.getText();
+            send.setEnabled(true);
+
+            try {
+                if (socket == null) {
+                    socket = new Socket(InetAddress.getByName(inputIp.getText()).getHostAddress(), 4333);
+                    in = new DataInputStream(socket.getInputStream());
+                    out = new DataOutputStream(socket.getOutputStream());
+                }
+
+                out.writeUTF("姓名:" + name + "#" + inputPw.getText());
+
+            } catch (IOException exp) {
+                exp.printStackTrace();
+            }
+
+            // 注册
+        } else if (e.getSource() == reg) {
+            name = inputName.getText();
+
+            try {
+                if (socket == null) {
+                    socket = new Socket(InetAddress.getByName(inputIp.getText()).getHostAddress(), 4333);
+                    in = new DataInputStream(socket.getInputStream());
+                    out = new DataOutputStream(socket.getOutputStream());
+                }
+                out.writeUTF("注册:" + name + "#" + inputPw.getText());
+            } catch (IOException exp) {
+                exp.printStackTrace();
+            }
+        } else if (e.getSource() == send || e.getSource() == inputContent) {
+            String s = inputContent.getText();
+            if (s != null) {
+                try {
+                    // 私聊
+                    if (s.contains("@")) {
+                        out.writeUTF("聊天内容:" + name + "@" + nameTo + "+:%" + s);
+                    } else {
+                        // 谁发送的聊天内容
+                        out.writeUTF("聊天内容:" + name + ":" + s);
+                    }
+
+                } catch (IOException e1) {
+                    System.out.println(e1);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void run() {
+        System.out.println("receive 1");
+        String s;
+        String temp;
+        String[] userList;
+        while (true) {
+            try {
+                System.out.println("receive 2");
+                if (in != null) {
+                    System.out.println("receive 3");
+                    s = in.readUTF();
+                    // 有人离开了
+                    if (s.contains("离开了")) {
+                        temp = s.substring(0, s.indexOf("离"));
+                        listModel.removeElement(temp);
+                    } else if (s.contains("欢迎") && s.contains("*")) {
+                        temp = s.substring(s.indexOf("*") + 1).trim();
+                        if (temp.contains(" ")) {
+                            userList = temp.split(" ");
+                            if (!listModel.isEmpty()) {
+                                listModel.removeAllElements();
+                            }
+                            for (String str : userList) {
+                                listModel.addElement(str);
+                            }
+                        } else {
+                            // 修改, 动态增加元素, 单个用户
+                            listModel.addElement(temp);
+                        }
+
+                    }
+                    if (s.contains("*")) {
+                        chatResult.append("\n" + s.substring(0, s.indexOf("*")));
+                    } else if (s.contains("@")) {
+                        // "@" + message + "|" + name
+                        chatResult.append("\n" + s.substring(s.indexOf("|") + 1) + "私聊:"
+                                + s.substring(s.indexOf("@") + 1, s.indexOf("|")));
+                    } else {
+                        chatResult.append("\n" + s);
+                    }
+
+                }
+
+
+            } catch (IOException e) {
+                chatResult.setText("和服务器的连接关闭");
+                break;
+            }
+        }
+
+    }
+
+    public static void main(String args[]) {
+        Client c = new Client();
+        new Thread(c).start();
+    }
+}

@@ -1,0 +1,8 @@
+package First;
+
+public class Test {
+	 public static void main() {
+		int a='ÎÒ';
+		System.out.println(a);
+	}
+}

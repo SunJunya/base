@@ -1,0 +1,29 @@
+package com.excel;
+
+import org.omg.CORBA.PUBLIC_MEMBER;
+
+public class StuEntity {
+    private int id;
+    private String name;
+    private String sex;
+    private int num;
+
+	public StuEntity() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+    public   StuEntity(int id,String name,String sex,int num){
+    	this.id=id;
+    	this.name=name;
+    	this.sex=sex;
+    	this.num=num;
+    }	 
+    public String toString(){
+      	return "StuEntity[id="+id+",name="+name+",sex="+sex+",name="+name+"]";
+    }
+    public int getId(){
+       	return id;
+    }
+    
+}

@@ -1,0 +1,11 @@
+package bean;
+
+public class Information {
+	private String sno;
+	private String sname;
+	private String ssex;
+	private String sbirthday;
+	private String province;
+	private String character;
+	private String phenonumber;
+}

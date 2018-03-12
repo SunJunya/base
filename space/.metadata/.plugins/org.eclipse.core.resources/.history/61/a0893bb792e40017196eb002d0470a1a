@@ -1,0 +1,63 @@
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import vo.Student;
+
+public class StudentDAO {
+
+	// 实现读学生文件，将读出的信息存放于student集合中
+	public List<Student> ReadFromExcel(String fileName) {
+
+		List<Student> list = new ArrayList<Student>();
+		/*
+		 * 请补充
+		 */
+		return list;
+	}
+
+	// 从文本文件中读，将读出的数据存放于集合中
+	public List<Student> ReadFromTxt(String fileName) {
+
+		List<Student> list = new ArrayList<Student>();
+		/*
+		 * 请补充
+		 */
+		return list;
+	}
+
+	// 从键盘中输入一条数据，将数据存放于对象中，若student对象为null，表示输入错误
+	public Student ReadFromKeyBoard() {
+
+		Student student = new Student();
+		/*
+		 * 请补充
+		 */
+		return student;
+	}
+
+	// 根据学号查询,返回的结果存放于集合中，若集合为空，表示没找到
+	public List<Student> QueryById(String id) {
+
+		List<Student> list = new ArrayList<Student>();
+		/*
+		 * 请补充
+		 */
+		return list;
+	}
+
+	// 将集合中的数据写入到excel文件中
+	public void WriteExcel(List<Student> list, String fileName) {
+		/*
+		 * 请补充
+		 */
+	}
+
+	// 将集合中的数据写入到txt文件中
+	public void WriteTxt(List<Student> list, String fileName) {
+		/*
+		 * 请补充
+		 */
+	}
+
+}

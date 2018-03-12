@@ -1,0 +1,12 @@
+import org.junit.Test;
+
+import com.helpsystem.dao.HpoMapper;
+
+public class TestGene {
+
+	HpoMapper hp;
+	@Test
+	public void testFindHpo() {
+		hp.phenotype_gene_Mapper("…Ì∏ﬂ“Ï≥£");
+	}
+}

@@ -1,0 +1,14 @@
+package com.inter;
+
+public class Interface {
+	interface A{
+		public String AUTHOR="Ëï¾ýÑÅ";
+		public void printA();
+	}
+	interface B{
+		public void printB(); 
+	}
+	interface C extends A,B{
+		public void  printC(); 
+	}
+}

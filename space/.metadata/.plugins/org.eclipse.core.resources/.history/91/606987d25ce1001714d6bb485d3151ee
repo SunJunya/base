@@ -1,0 +1,36 @@
+package com.collection;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
+
+public class MapDemo {
+	
+	public static void main(String[] args) {
+		String pathname="D:\\Ô±¹¤map.txt";
+		Map<String, String> map=new HashMap<String,String>();
+		File file=new File(pathname);
+		try {
+			RandomAccessFile rdf=new RandomAccessFile(file, "r");
+			String  line=rdf.readLine();
+			while (line!=null) {
+				String[] strings=line.split(",");
+				System.out.println(strings.length);
+				line=rdf.readLine();				
+			}	
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+     
+}

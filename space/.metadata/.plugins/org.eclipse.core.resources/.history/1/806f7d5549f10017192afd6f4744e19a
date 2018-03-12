@@ -1,0 +1,228 @@
+package market;
+
+
+import model.dao.SaleDetail;
+import model.vo.Sale;
+import util.DBManager;
+
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+public class QueryView {
+    private JFrame frame;
+    JPanel panel = new JPanel();
+    JTable table;
+
+    private Sale sale;
+    // 全局变量, list存放结果集
+    private List<Sale> list;
+    // 计算商品总数
+    private int kind;
+    // 总件数
+    private int sum;
+    // 总金额
+    private double money;
+
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    /**
+     * 查询界面
+     */
+    public static void main(String[] args) {
+        new QueryView();
+    }
+
+    public QueryView() {
+        initialize();
+    }
+
+    private void initialize() {
+        frame = new JFrame();
+        frame.setTitle("销售查询统计");
+        frame.setBounds(100, 100, 790, 546);
+        frame.getContentPane().setLayout(null);
+
+        final DatePicker datePicker = this.getDatePicker();
+        datePicker.setFocusable(false);
+        frame.getContentPane().add(datePicker);
+
+        JLabel label = new JLabel("请选择查询日期:");
+        label.setFont(new Font("黑体", Font.BOLD, 18));
+        label.setBounds(141, 29, 170, 41);
+        frame.getContentPane().add(label);
+
+        final JButton query = new JButton("查询");
+        query.setBounds(397, 86, 115, 27);
+        frame.getContentPane().add(query);
+
+        panel.setLayout(new BorderLayout());
+        panel.setSize(650, 300);
+        panel.setLocation(50, 200);
+
+        frame.add(panel);
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setVisible(true);
+
+        query.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == query) {                     // 判断触发源是否是提交按钮
+//                    System.out.println("我执行了一次!");
+//                    System.out.println(datePicker.getText());
+
+                    datePicker(datePicker);
+                }
+            }
+        });
+    }
+
+    private void datePicker(DatePicker datePicker) {
+        sale = new Sale();
+        // 用日期控件的日期进行模糊查询
+        sale.setSaletime(datePicker.getText());
+
+        try {
+            this.query(sale);
+            list = new SaleDetail().query(sale);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        Object[][] userInfo = new Object[list.size() + 1][7];
+        // for循环遍历， jdbc插入数据
+        for (int i = 0; i < list.size(); i++) {
+            userInfo[i][0] = list.get(i).getId();
+            userInfo[i][1] = list.get(i).getBarcode();
+            userInfo[i][2] = list.get(i).getProduct();
+            userInfo[i][3] = list.get(i).getPrice();
+            userInfo[i][4] = list.get(i).getNumber();
+            userInfo[i][5] = list.get(i).getSaletime();
+            userInfo[i][6] = list.get(i).getSaleperson();
+        }
+        // 最后一行, 自己来写和赋值
+        userInfo[list.size()][0] = "商品总数:";
+        userInfo[list.size()][1] = kind;
+        userInfo[list.size()][2] = "商品总件数:";
+        userInfo[list.size()][3] = sum;
+        userInfo[list.size()][4] = "销售总金额:";
+        userInfo[list.size()][5] = String.format("%.2f", money);
+        userInfo[list.size()][6] = "";
+
+        // 中间
+        JPanel center = new JPanel();
+        String[] titles = new String[]{"流水号", "条形码", "商品名称", "单价", "销售量", "销售时间", "销售员"};
+
+        table = new JTable(userInfo, titles);    // 建立表格
+        // 设置表头字体
+        setTableHeadFont(table, new Font("黑体", Font.BOLD, 15));
+        table.setFont(new Font("黑体", Font.BOLD, 12));
+        table.setBackground(Color.CYAN);
+        // 设置具体一列的宽度
+        TableColumn time = table.getColumnModel().getColumn(5);
+        time.setPreferredWidth(150);
+        time.setMaxWidth(150);
+        time.setMinWidth(150);
+
+        TableColumn id = table.getColumnModel().getColumn(0);
+        id.setPreferredWidth(110);
+        id.setMaxWidth(110);
+        id.setMinWidth(110);
+
+        JScrollPane scr = new JScrollPane(table); // 加入滚动条
+        center.add(scr, BorderLayout.CENTER);
+        panel.add(scr);                          // 将表格加入panel
+        panel.updateUI();                        // 更新界面
+    }
+
+    private DatePicker getDatePicker() {
+        DatePicker datePicker;
+        // 格式
+        String DefaultFormat = "yyyy-MM-dd";
+        // 当前时间
+        Date date = new Date();
+        // 字体
+        Font font = new Font("Times New Roman", Font.BOLD, 14);
+        // 大小
+        Dimension dimension = new Dimension(177, 24);
+
+        int[] HighlightDays = {1, 3, 5, 7};
+//        int[] disabledDays = {4, 6, 9};
+
+        //构造方法（初始时间，时间显示格式，字体，控件大小）
+        datePicker = new DatePicker(date, DefaultFormat, font, dimension);
+
+        datePicker.setLocation(137, 83); // 设置起始位置
+        // 设置一个月份中需要高亮显示的日子
+        datePicker.setHightlightdays(HighlightDays, Color.red);
+
+        // 设置一个月份中不需要的日子，呈灰色显示
+//        datePicker.setDisableddays(disabledDays);
+
+        // 设置国家
+//        datePicker.setLocale(Locale.CHINESE);
+        datePicker.setLocale(Locale.ENGLISH);
+        // 设置时钟面板不可见
+        datePicker.setTimePanleVisible(false);
+
+        return datePicker;
+    }
+
+    /**
+     * 设置表头的字体
+     *
+     * @param table
+     * @param font
+     */
+    public static void setTableHeadFont(JTable table, Font font) {
+        table.getTableHeader().setFont(font);
+    }
+
+    // 做计算
+    public void query(Sale sale) {
+        String sql = "select COUNT(DISTINCT barcode) from `tsaledetail` where 1=1 ";
+//        SELECT * FROM `tsaledetail` where 1=1 and saletime LIKE '%2017%';
+        String sql1 = "SELECT * FROM `tsaledetail` where 1=1 ";
+        if (sale.getSaletime() != null) {
+            sql += " and saletime LIKE '%" + sale.getSaletime() + "%' ";
+            sql1 += " and saletime LIKE '%" + sale.getSaletime() + "%' ";
+        }
+
+        DBManager db = new DBManager();     // 在DBManager中已经实现了数据库的连接
+        ResultSet rs = null;
+        try {
+            rs = db.executeQuery(sql);
+            // 结果集的处理
+            while (rs.next()) {
+                kind = rs.getInt(1);
+            }
+
+            rs = db.executeQuery(sql1);
+            while (rs.next()) {
+                sum += rs.getInt(5);
+                money += rs.getInt(5) * rs.getFloat(4);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            db.close();
+        }
+    }
+}
