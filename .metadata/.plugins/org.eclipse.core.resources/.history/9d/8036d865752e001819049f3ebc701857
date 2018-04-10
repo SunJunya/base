@@ -1,0 +1,40 @@
+package com.sjy.thisKey;
+
+class Person{
+	private String name;
+	private Integer age;
+	public Person() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Person(String name, Integer age) {
+		super();
+		this.name = name;
+		this.age = age;
+		
+		//
+	}
+	
+	/*public Person(String name, Integer age) {
+		super();
+		name = name;
+		age = age;
+		
+		Person [name=null, age=null]
+	}*/
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", age=" + age + "]";
+	}
+	
+	
+}
+
+public class ThisKey {
+
+	public static void main(String[] args) {
+		Person person=new Person("sjy",new Integer(21));
+		System.out.println(person);
+	}
+
+}
