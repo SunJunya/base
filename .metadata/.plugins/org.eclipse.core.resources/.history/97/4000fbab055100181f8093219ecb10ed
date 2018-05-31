@@ -1,0 +1,39 @@
+package com.heima.design;
+
+public class Design_Singleton {
+	public static void main(String[] args) {
+		final Object obj = new Object();
+		new Thread(){
+			public void run(){
+				int i=0;
+				synchronized (obj) {
+					while(i<=1000){
+						System.out.println(getName()+"...11111111111111111111  -----i="+i);
+						i++;
+						/*if (i==100) {
+							try {
+								obj.wait(1000);
+							} catch (InterruptedException e) {
+								
+								e.printStackTrace();
+							}
+						}*/
+					}
+				}
+			}
+		}.start();
+		
+		new Thread(){
+			public void run(){
+				int i=0;
+				synchronized (obj) {
+					while(i<=1000){
+						System.out.println(getName()+"...bb  -----i="+i);
+						i++;
+					}
+				}
+			}
+		}.start();
+	}
+}
+

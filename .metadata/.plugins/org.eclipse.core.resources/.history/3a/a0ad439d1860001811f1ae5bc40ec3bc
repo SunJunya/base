@@ -1,0 +1,67 @@
+package com.test;
+
+public class TwoThread {
+	public static void main(String[] args) {
+		final Print p = new Print();
+		new Thread(){
+			public void run(){
+				while(true){
+					try {
+						p.print1();
+					} catch (InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+		
+		new Thread(){
+			public void run(){
+				try {
+					p.print2();
+				} catch (InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+}
+
+class Print{
+	private int flag = 1;
+	public  void print1() throws InterruptedException {
+		synchronized (Print.class) {
+			if (flag!=1) {
+				Print.class.wait();
+			}
+			System.out.print("ºÚ");
+			System.out.print("Âí");
+			System.out.print("³Ì");
+			System.out.print("Ðò");
+			System.out.print("Ô±");
+			System.out.print("\r\n");
+			flag=2;
+			Print.class.notify();
+		}
+		
+	}
+	
+	public  void print2() throws InterruptedException {
+		synchronized (Print.class) {
+			if(flag!=2){
+				Print.class.wait();
+			}
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("\r\n");
+			flag=1;
+			Print.class.notify();
+		}
+		
+	}
+}

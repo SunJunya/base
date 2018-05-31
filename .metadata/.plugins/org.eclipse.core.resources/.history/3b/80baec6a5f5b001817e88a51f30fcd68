@@ -1,0 +1,28 @@
+package com.part2.outofmemory;
+
+public class JavaVMStackSOF {
+	
+	private int stackLength = 1;
+	
+	public void stackLeak(){
+		stackLength++;
+		stackLeak();//ÏÝÈëµÝ¹éËÀÑ­»·
+		//java.lang.StackOverflowError
+	}
+	
+	public static void main(String[] args) {
+		
+		 demo1();//Õ»ÒÝ³öjava.lang.StackOverflowError
+		 
+	}
+
+	private static void demo1() throws Throwable {
+		JavaVMStackSOF oom = new JavaVMStackSOF();
+		 try {
+			oom.stackLeak();
+		} catch (Throwable e) {
+			System.out.println("stack length: "+oom.stackLength);
+			throw e;
+		}
+	}
+}

@@ -1,0 +1,14 @@
+package com.heima.net.udp;
+
+public class Threads {
+	//发送和接收在一个窗口完成
+	public static void main(String[] args) {
+		
+	}
+}
+
+class Recive2 extends Thread{
+	public void run(){
+		
+	}
+}

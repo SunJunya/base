@@ -1,0 +1,40 @@
+package com.heima.net.udp;
+
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Frame;
+import java.awt.Panel;
+import java.awt.TextField;
+
+public class GUIChat extends Frame{
+	/*
+	 * GUI聊天
+	 * */
+	
+	public GUIChat(){
+		init();//创建设置窗口
+		Panel south = new Panel();   //创建下面的panel
+		TextField tf = new TextField(15); //创建文本字段存储ip地址
+		Button send = new Button("发送");     //发送按钮
+		Button log = new Button("记录");
+		Button clear = new Button("清屏");
+		Button shake = new Button("震动");
+		south.add(tf);
+		south.add(send);
+		south.add(log);
+		south.add(clear);
+		south.add(shake);
+		this.add(south, BorderLayout.SOUTH);
+	}
+
+	private void init() {
+		//创建窗口
+		this.setLocation(500,50);  //设置位置
+		this.setSize(400, 600);    //设置大小
+		this.setVisible(true);     //设置显示
+	}
+	
+	public static void main(String[] args) {
+		new GUIChat();
+	}
+}

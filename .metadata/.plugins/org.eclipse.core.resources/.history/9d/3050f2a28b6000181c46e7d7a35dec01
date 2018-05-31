@@ -1,0 +1,7 @@
+package com.github.thread;
+
+public class ThreadAQS {
+
+	/**CountDownLatch  用来控制一个线程等待多个线程
+	 * 维护了一个计数器cnt，每次调用countDown()方法会让计数器-1，-到0的时候那些因为调用await()而等待的线程就会被唤醒*/
+}

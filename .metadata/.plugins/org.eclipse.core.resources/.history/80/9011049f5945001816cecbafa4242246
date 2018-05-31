@@ -1,0 +1,17 @@
+package com.heima.otherclass;
+
+import java.util.Arrays;
+
+public class MyRegex {
+	public static void main(String[] args) {
+		demo1();
+		String s="我我....我...我.要...要要...要学....学学..学.编..编编.编.程.程.程..程";
+		
+	}
+
+	private static void demo1() {
+		String s="ubiiidasefwwwosfnfff";
+		String[] a=s.split("(.)\\1(.)\\2");
+		System.out.println(Arrays.toString(a));
+	}
+}

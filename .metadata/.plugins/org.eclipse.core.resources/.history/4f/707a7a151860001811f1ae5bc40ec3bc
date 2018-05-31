@@ -1,0 +1,44 @@
+package com.test;
+
+public class TwoThread {
+	public static void main(String[] args) {
+		final Print p = new Print();
+		new Thread(){
+			public void run(){
+				
+			}
+		}.start();
+		
+		new Thread(){
+			public void run(){
+				
+			}
+		}.start();
+	}
+}
+
+class Print{
+	public  void print1() {
+		synchronized (Print.class) {
+			System.out.println("ºÚ");
+			System.out.println("Âí");
+			System.out.println("³Ì");
+			System.out.println("Ðò");
+			System.out.println("Ô±");
+			System.out.println("\r\n");
+		}
+		
+	}
+	
+	public  void print2() {
+		synchronized (Print.class) {
+			System.out.println("1");
+			System.out.println("1");
+			System.out.println("1");
+			System.out.println("1");
+			System.out.println("1");
+			System.out.println("\r\n");
+		}
+		
+	}
+}

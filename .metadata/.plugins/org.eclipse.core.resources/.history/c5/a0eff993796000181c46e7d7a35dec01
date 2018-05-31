@@ -1,0 +1,21 @@
+package com.github.thread;
+
+public class Interrupted {
+	public static void main(String[] args) {
+		Thread t1 = new Thread(){
+			public void run(){
+				try {
+					while(true){
+						Thread.sleep(100);
+						System.out.println("1234");
+					}
+				} catch (InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+			}
+		};
+		t1.start();
+		t1.interrupt();
+	}
+}

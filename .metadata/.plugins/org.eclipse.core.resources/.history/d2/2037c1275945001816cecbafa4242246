@@ -1,0 +1,7 @@
+package com.heima.otherclass;
+
+public class MyRegex {
+	public static void main(String[] args) {
+		
+	}
+}

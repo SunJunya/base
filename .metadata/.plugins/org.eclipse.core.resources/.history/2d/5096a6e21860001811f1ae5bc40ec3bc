@@ -1,0 +1,78 @@
+package com.test;
+
+public class ThreeThread {
+	private static int i=1;
+	public static void main(String[] args) {
+		new Thread(){
+			public void run() {
+				synchronized (this) {
+					if(i==1){
+						int j=0;
+						while(j<20){
+							System.out.println("这是第一个线程");
+							j++;
+						}
+						i++;
+						this.notifyAll();
+					}
+					
+					try {
+						this.wait();
+						
+					} catch (InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+		
+		new Thread(){
+			public void run() {
+				synchronized (this) {
+					if(i==2){
+						int j=0;
+						while(j<20){
+							System.out.println("这是第二个线程");
+							j++;
+						}
+						i++;
+						this.notifyAll();
+					}
+					try {
+						this.wait();
+						
+					} catch (InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		}.start();
+		
+		new Thread(){
+			public void run() {
+				synchronized (this) {
+					if(i==3){
+						int j=0;
+						while(j<20){
+							System.out.println("这是第三个线程");
+							j++;
+						}
+						i++;
+						this.notifyAll();
+					}
+					
+					try {
+						this.wait();
+						
+					} catch (InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+}

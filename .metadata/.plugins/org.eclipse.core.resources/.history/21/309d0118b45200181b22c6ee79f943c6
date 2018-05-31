@@ -1,0 +1,25 @@
+package com.heima.net.udp;
+
+import java.awt.Frame;
+
+public class GUIChat extends Frame{
+	/*
+	 * GUI聊天
+	 * */
+	
+	public GUIChat(){
+		
+		init();
+	}
+
+	private void init() {
+		//创建窗口
+		this.setLocation(500,50);  //设置位置
+		this.setSize(400, 600);    //设置大小
+		this.setVisible(true);     //设置显示
+	}
+	
+	public static void main(String[] args) {
+		new GUIChat();
+	}
+}

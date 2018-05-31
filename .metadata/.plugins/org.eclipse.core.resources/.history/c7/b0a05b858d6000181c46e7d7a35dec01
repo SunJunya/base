@@ -1,0 +1,64 @@
+package com.github.thread;
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ThreadAQS {
+
+	
+	public static void main(String[] args)  {
+//		countDown();
+//		cycBarrir(totalThread);
+	}
+
+	private static void cycBarrir(final int totalThread) {
+		/**CyclicBarrier 用来控制多个线程互相等待，只有当多个线程都到达时，这些线程才会继续执行
+		 * 
+		 * */
+		final int totalThread2 = 10;
+		final CyclicBarrier cb = new CyclicBarrier(totalThread);
+		ExecutorService es = Executors.newCachedThreadPool();
+		for (int i = 0; i < totalThread2; i++) {
+			es.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					System.out.println("before...");
+					try {
+						cb.await();
+					} catch (InterruptedException | BrokenBarrierException e) {
+						
+						e.printStackTrace();
+					}
+					System.out.println("after");
+				}
+			});
+		}
+		es.shutdown();
+	}
+
+	private static void countDown() throws InterruptedException {
+		/**CountDownLatch  用来控制一个线程等待多个线程
+		 * 维护了一个计数器cnt，每次调用countDown()方法会让计数器-1，-到0的时候那些因为调用await()而等待的线程就会被唤醒
+		 * @throws InterruptedException */
+		final int totalThread = 10;
+		final CountDownLatch cd = new CountDownLatch(totalThread);
+		ExecutorService es = Executors.newCachedThreadPool();
+		for(int i = 0 ;i < totalThread ; i++){
+			es.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					System.out.println("run ....");
+					cd.countDown();
+				}
+			});
+		}
+		cd.await();
+		System.out.println("end");
+		es.shutdown();
+	}
+}

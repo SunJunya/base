@@ -1,0 +1,12 @@
+package com.heima.IO.file;
+
+import java.io.File;
+import java.io.IOException;
+
+public class MyFile {
+	public static void main(String[] args) throws IOException {
+		File file = new File("aaaa.txt");		
+		File file1 =new File("ddd.txt");
+		System.out.println(file.mkdir());
+	}
+}

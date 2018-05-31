@@ -1,0 +1,60 @@
+package com.test;
+
+public class ThreeThread {
+	
+}
+
+
+class Print{
+	private int flag = 1;
+	public  void print1() throws InterruptedException {
+		synchronized (Print.class) {
+			if (flag!=1) {
+				Print.class.wait();
+			}
+			System.out.print("ºÚ");
+			System.out.print("Âí");
+			System.out.print("³Ì");
+			System.out.print("Ðò");
+			System.out.print("Ô±");
+			System.out.print("\r\n");
+			flag=2;
+			Print.class.notify();
+		}
+		
+	}
+	
+	public  void print2() throws InterruptedException {
+		synchronized (Print.class) {
+			if(flag!=2){
+				Print.class.wait();
+			}
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("1");
+			System.out.print("\r\n");
+			flag=3;
+			Print.class.notify();
+		}
+		
+	}
+	
+	public  void print3() throws InterruptedException {
+		synchronized (Print.class) {
+			if(flag!=3){
+				Print.class.wait();
+			}
+			System.out.print("3");
+			System.out.print("3");
+			System.out.print("3");
+			System.out.print("3");
+			System.out.print("3");
+			System.out.print("\r\n");
+			flag=1;
+			Print.class.notify();
+		}
+		
+	}
+}

@@ -1,0 +1,12 @@
+1523765016000	Move compilation unit
+1523765021684	Delete element
+1524288979746	Extract method 'myspilt'
+1524289278337	Extract method 'myreplace'
+1524305278132	Extract method 'demo1'
+1524305330697	Extract method 'demo2'
+1524308008085	Extract method 'demo1'
+1524310050509	Extract method 'demo2'
+1524310877667	Rename package 'com.otherclass'
+1524311128375	Extract method 'demo1'
+1524311488403	Extract method 'demo3'
+1524326699421	Rename package 'com.heima.base.faceObject'

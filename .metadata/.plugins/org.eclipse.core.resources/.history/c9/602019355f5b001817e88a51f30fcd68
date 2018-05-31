@@ -1,0 +1,10 @@
+package com.part2.outofmemory;
+
+public class JavaVMStackSOF {
+	
+	private int stackLength = 1;
+	
+	public static void main(String[] args) {
+		 
+	}
+}

@@ -1,0 +1,15 @@
+package com.heima.otherclass;
+
+import java.util.Arrays;
+
+public class MyRegex {
+	public static void main(String[] args) {
+		demo1();
+	}
+
+	private static void demo1() {
+		String s="ubiiidasefwwwosfnfff";
+		String[] a=s.split("(.)\\1+");
+		System.out.println(Arrays.toString(a));
+	}
+}

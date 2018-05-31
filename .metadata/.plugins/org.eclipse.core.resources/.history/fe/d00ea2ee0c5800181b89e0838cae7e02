@@ -1,0 +1,20 @@
+package com.part1.composingobjects;
+
+public class ComposingObject {
+	public static void main(String[] args) {
+		Son f = new Son();
+		f.runn();
+	}
+}
+
+class Father{
+	void runn() {
+		System.out.println(123);
+	}
+}
+
+class Son extends Father{
+	public void runn(int i) {
+		System.out.println("456");
+	}
+}

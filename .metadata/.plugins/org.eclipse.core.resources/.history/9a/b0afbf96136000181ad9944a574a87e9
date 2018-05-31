@@ -1,0 +1,209 @@
+为什么使用线程池？
+	1、创建/销毁线程伴随着系统开销，过于频繁的创建/销毁线程，会很大程度上影响处理效率。
+		eg：创建线程消耗时间t1，执行任务消耗时间t2，销毁线程消耗时间t3；如果t1+t3>t2，创建线程不太划算。线程池缓存线程，可以用已有的闲置线程来执行新任务，避免了t1+t3带来的系统开销
+	2、线程并发数量过多，抢占系统资源从而导致阻塞。
+		eg：线程能共享系统资源，如果同时执行的线程过多，就有可能导致系统资源不足而产生阻塞的情况。运用线程池可以有效的控制线程最大并发数。
+	3、对线程进行一些简单的管理
+		eg：延时执行，定时循环执行的策略等，运用线程池都能很好的实现
+	
+
+线程池ThreadPoolExecutor
+	在java中，线程池的概念是Executor这个接口，具体实现为ThreadPoolExecutor类，对线程池的配置，就是对ThreadPoolExecutor构造函数的参数配置。
+	ThreadPoolExecutor提供了四个构造函数
+	<一>
+	 public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue) {
+        this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+             Executors.defaultThreadFactory(), defaultHandler);
+    }
+    
+    <二>
+    public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory) {
+        this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+             threadFactory, defaultHandler);
+    }
+    
+    <三>
+      public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              RejectedExecutionHandler handler) {
+        this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+             Executors.defaultThreadFactory(), handler);
+    }
+    
+    <四>
+     public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) {
+        if (corePoolSize < 0 ||
+            maximumPoolSize <= 0 ||
+            maximumPoolSize < corePoolSize ||
+            keepAliveTime < 0)
+            throw new IllegalArgumentException();
+        if (workQueue == null || threadFactory == null || handler == null)
+            throw new NullPointerException();
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.workQueue = workQueue;
+        this.keepAliveTime = unit.toNanos(keepAliveTime);
+        this.threadFactory = threadFactory;
+        this.handler = handler;
+    }
+    
+    
+    对各个参数的解释：
+    
+    int corePoolSize   			 => 线程池中核心线程数的最大值
+    <!--核心线程池：
+    	线程池新建线程的时候，如果当前线程总数小于corePoolSize，则新建的是核心线程，如果超过corePoolSize，则新建的是非核心线程。
+       	 核心线程默认情况下会一直存活在线程池中，即使这个核心线程处于闲置状态。如果指定ThreadPoolExecutor的allowCoreThreadTim-
+       	 eOut这个属性为true，那么核心线程如果处于闲置状态超过一定时间，就会被销毁掉。
+        
+    int maximumPoolSize 	   	 => 线程池中线程总数的最大值
+    <!--线程总数=核心线程数+非核心线程数。
+    
+    long keepAliveTime			 => 线程池中非核心线程限制超时时长
+    <!--一个非核心线程，如果处于闲置状态的时长超过这个参数所设定的时长就会被销毁掉。如果设置allowCoreThreadTimeOut=true，则会作用于核心线程
+    
+    
+    TimeUnit unit  				 => keepAliveTime的单位。
+    <!--TimeUnit是一个枚举类型，其包括：
+    	NANOSECONDS 	 1微毫秒 = 1微秒 / 1000
+    	MICROSECONDS	 1微秒 = 1毫秒 / 1000
+    	MILLISECONDS	 1毫秒 = 1秒 /1000
+    	SECONDS			  秒
+    	MINUTES			  分
+    	HOURS			  时
+    	DAYS			  天
+    	
+    BlockingQueue<Runnable> workQueue	=>线程池中的任务队列：维护着等待执行的Runnable对象
+    <!--当所有的核心线程都在干活时，新添加的任务会被添加到这个队列中等待处理，如果队列满了，则新建非核心线程执行任务。
+    	常用的workQueue类型：
+    		1、SynchronousQueue:
+    		2、LinkedBlockingQueue：
+    		3、ArrayBlockingQueue：
+    		4、DelayQueue：
+    		
+    ThreadFactory threadFactory			 =>创建线程的方式(接口)
+    RejectedExecutionHandler handler	 =>用来抛出异常
+    
+    
+向ThreadPoolExecutor添加任务    
+	通过ThreadPoolExecutor.execute(Runnable command)就可以向线程池中添加一个任务
+    
+
+ThreadPoolExecutor执行的策略
+	当一个任务被添加进线程池时：
+		1、线程数量未达到corePoolSize，则新建一个线程（核心线程）执行任务
+		2、线程数量达到了corePoolSize，则将任务移入队列等待
+		3、队列已满，新建线程（非核心线程）执行任务
+		4、队列已满，总线程数又达到maximumPoolSize，就会由RejectedExecutionHandler抛出异常
+    
+    
+    
+常见的四种线程池
+	java通过Executors提供了四种线程池，这四种线程池都是直接或间接配置ThreadPoolExecutor的参数实现的
+    
+   1、CacheThreadPool() 可缓存的线程池
+		a、线程数无限制
+		b、有空闲线程则复用空闲线程，若无空闲线程则新建线程
+		c、一定程序减少频繁创建/销毁线程，减少系统开销。
+		
+		创建方法：ExecutorService cacheThreadPool = Ececutors.newCachedThreadpool(); 
+    	
+    	public static ExecutorService newCachedThreadPool() {
+	        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+	                                      60L, TimeUnit.SECONDS,
+	                                      new SynchronousQueue<Runnable>());
+	    }
+    
+   2、FixedThreadPool() 定长线程池
+   		a、可控制线程最大并发数（同时执行的线程数）
+   		b、超出的线程会在队列中等待。
+   		
+   		创建方法：ExecutorService fixedThreadPool = Executors.newFixedThreadPool(2);
+    
+    	public static ExecutorService newFixedThreadPool(int nThreads) {
+	        return new ThreadPoolExecutor(nThreads, nThreads,
+	                                      0L, TimeUnit.MILLISECONDS,
+	                                      new LinkedBlockingQueue<Runnable>());
+	    }
+    
+    
+   3、ScheduledThreadPool() 
+   		a、支持定时及周期性任务
+   		
+   		创建方法：ExecutorService scheduled = Executors.newScheduledThreadPool(corePoolSize);
+   		
+   		public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+	        return new ScheduledThreadPoolExecutor(corePoolSize);
+	    }
+	    
+	    public ScheduledThreadPoolExecutor(int corePoolSize) {
+	        super(corePoolSize, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS,
+	              new DelayedWorkQueue());
+	    }
+    
+   4、SingleThreadExecutor
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+

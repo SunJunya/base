@@ -1,0 +1,12 @@
+package com.heima.net.udp;
+
+import java.awt.Frame;
+
+public class GUIChat extends Frame{
+	/*
+	 * GUIÁÄÌì
+	 * */
+	public static void main(String[] args) {
+		
+	}
+}

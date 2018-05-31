@@ -1,0 +1,47 @@
+package com.github.thread;
+
+public class Interrupted {
+	public static void main(String[] args) {
+//		demo1();
+		
+		
+	}
+
+	private static void demo1() {
+		/**
+		 * 当前线程处于阻塞，等待状态下，调用interrupt()方法会抛出异常*/
+		Thread t1 = new InterruptThread1();
+		t1.start();
+		t1.interrupt();
+	}
+}
+
+class InterruptThread1 extends Thread{
+	public void run(){
+		try {
+			while(true){
+				Thread.sleep(100);
+				System.out.println("1234");
+			}
+		} catch (InterruptedException e) {
+			
+			e.printStackTrace();
+		}
+	}
+}
+
+
+
+class InterruptThread2 extends Thread{
+	public void run(){
+		try {
+			while(!interrupted()){
+				Thread.sleep(100);
+				System.out.println("1234");
+			}
+		} catch (InterruptedException e) {
+			
+			e.printStackTrace();
+		}
+	}
+}

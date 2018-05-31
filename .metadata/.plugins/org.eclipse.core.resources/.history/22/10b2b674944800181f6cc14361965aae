@@ -1,0 +1,160 @@
+package com.heima.collection;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.jar.JarException;
+
+public class MyHashMap {
+	public static void main(String[] args) {
+//		demo1();
+//		demo2();
+//		demo3();
+//		demo4();
+//		demo5();
+		
+		//模拟斗地主洗牌和发牌，拍没有排序
+		String[] num={"A","2","3","4","5","6","7","8","9","10","J","Q","K"};
+		String[] color={"方片","梅花","红桃","黑桃"};
+		ArrayList<String> poker = new ArrayList<>();
+		
+		for(String s1:color){
+			for(String s2:num){
+				poker.add(s1.concat(s2));
+			}
+		}
+		
+		poker.add("小王");
+		poker.add("大王");
+		
+		//洗牌
+		Collections.shuffle(poker);
+		
+		//发牌
+		try {
+			
+		} catch (java.io.FileNotFoundException ex){
+			// TODO: handle finally clause
+		}
+		
+	}
+
+	private static void demo5() {
+		List<String> list = new ArrayList<>();
+		list.add("1");
+		list.add("a");
+		list.add("b");
+		list.add("c");
+		list.add("d");
+		list.add("g");
+		list.add("f");
+		list.add("e");
+		Collections.sort(list);
+		int i=Collections.binarySearch(list, "n");
+		System.out.println(Collections.max(list));
+		System.out.println(i);
+		System.out.println(list);
+		Collections.reverse(list);
+		System.out.println(list);
+		Collections.shuffle(list);
+		System.out.println(list);
+	}
+
+	private static void demo4() {
+		//统计字符串中每个字符出现的次数
+		String str="aaaaaabbbbbcccccdddddddddddddddd";
+		char[] c=str.toCharArray();
+		HashMap<Character, Integer> hm=new HashMap<>();
+		for(char ch:c){
+			/*if(hm.containsKey(ch)){
+				hm.put(ch,hm.get(ch)+1 );
+			}else {
+				hm.put(ch, 1);
+			}*/
+			hm.put(ch, hm.containsKey(ch)?hm.get(ch)+1:1);
+		}
+		for(Map.Entry<Character, Integer> entry : hm.entrySet()){
+			System.out.println(entry.getKey()+"  =  "+entry.getValue());
+		}
+	}
+
+	private static void demo3() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put("张三", 23);
+		map.put("李四", 24);
+		map.put("王五", 25);
+		map.put("赵六", 26);
+		map.put("郑七", 27);
+		
+		//Map.Entry说明Entry是Map的内部接口，将键和值封装成了Entry对象，并且存储在Set集合中
+		Set<Map.Entry<String, Integer>> set = map.entrySet();
+		
+		/*//迭代器获取每一个Set里面的Entry对象
+		Iterator<Map.Entry<String, Integer>> it = set.iterator();
+		while(it.hasNext()){
+			Map.Entry<String, Integer> entry =it.next();
+			String key=entry.getKey();
+			Integer value = entry.getValue();
+			System.out.println(key+"  =  "+value);
+		}*/
+		
+		//使用增强for循环
+		/*Map.Entry<String, Integer> 
+		  Entry<String, Integer>
+		  此处定义Map.Entry和Entry都可以
+		  Entry实现了Map.Entry接口
+		  Map.Entry导入的是import java.util.Map;  父类引用指向子类对象
+		  Entry导入的是import java.util.Map.Entry;直接获取子类*/
+	}
+
+	private static void demo2() {
+		//map遍历根据键获取值
+		Map<String, Integer> map = new HashMap<>();
+		map.put("张三", 23);
+		map.put("李四", 24);
+		map.put("王五", 25);
+		map.put("赵六", 26);
+		map.put("郑七", 27);
+		
+		/*//map的迭代器遍历
+		Set<String> keySet = map.keySet();
+		Iterator<String> keyit = keySet.iterator();
+		while (keyit.hasNext()) {
+			String key=keyit.next();
+			Integer value = map.get(key);
+			System.out.println(key+"  = "+value);
+		}*/
+		
+		
+		/*//map的增强for循环遍历
+		for(String key :map.keySet()){//map.keySet()是所有的key集合
+			System.out.println(key+"　＝　"+map.get(key));
+		}*/
+	}
+
+	private static void demo1() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put("张三", 23);
+		map.put("李四", 24);
+		map.put("王五", 25);
+		map.put("赵六", 26);
+		map.put("郑七", 27);
+		//获取map中所有值得集合
+		Collection<Integer> c=map.values();
+		System.out.println(c);
+		
+		//获取map中所有的键
+		Set<String> s = map.keySet();
+		System.out.println(s);
+		
+		
+		System.out.println(map);
+	}
+}

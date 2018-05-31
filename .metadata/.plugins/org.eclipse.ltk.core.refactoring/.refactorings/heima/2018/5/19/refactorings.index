@@ -1,0 +1,26 @@
+1525565248481	Extract method 'demo3'
+1525571876187	Extract method 'demo4'
+1525595130612	Extract method 'demo1'
+1525779339171	Extract method 'init'
+1525779752341	Extract method 'southPanel'
+1525780676979	Convert local variable 'tf' to field
+1525780689302	Convert local variable 'viewText' to field
+1525780693474	Convert local variable 'sendText' to field
+1525780699735	Convert local variable 'send' to field
+1525780708185	Convert local variable 'log' to field
+1525780712109	Convert local variable 'clear' to field
+1525780715334	Convert local variable 'shake' to field
+1525782270928	Convert local variable 'socket' to field
+1525782718563	Extract local variable 'str'
+1525782764414	Extract local variable 'str'
+1525838318235	Copy compilation unit
+1525838322152	Copy compilation unit
+1525865563384	Copy compilation unit
+1525865567565	Copy compilation unit
+1525866641214	Copy compilation unit
+1525866644378	Copy compilation unit
+1525868218275	Extract local variable 'is'
+1525868649347	Delete element
+1525868653688	Delete element
+1526052525390	Extract method 'demo2'
+1526055018138	Extract method 'demo3'
